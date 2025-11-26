@@ -21,6 +21,7 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
     '127.0.0.1:8000',
     'localhost:8000',
+    'cir407project.onrender.com',
 ]
 
 # Application definition
