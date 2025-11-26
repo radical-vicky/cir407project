@@ -1,0 +1,727 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Deposit Funds - CryptoConsult{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Binance Color Scheme */
+:root {
+    --binance-yellow: #f0b90b;
+    --binance-black: #0b0e11;
+    --binance-dark-gray: #1e2026;
+    --binance-gray: #2b3139;
+    --binance-light-gray: #474d57;
+    --binance-text: #eaecef;
+    --binance-text-secondary: #848e9c;
+    --binance-success: #03a66d;
+    --binance-error: #cf304a;
+    --binance-warning: #f0b90b;
+}
+
+/* Binance Container Styles */
+.binance-container {
+    max-width: 440px;
+    margin: 80px auto 2rem;
+    padding: 0 1rem;
+}
+
+.binance-card {
+    background: var(--binance-dark-gray);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.binance-card-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--binance-gray);
+}
+
+.binance-card-body {
+    padding: 1.5rem;
+}
+
+.binance-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--binance-text);
+    margin: 0;
+}
+
+.binance-card-subtitle {
+    font-size: 0.875rem;
+    color: var(--binance-text-secondary);
+    margin: 0.25rem 0 0 0;
+}
+
+/* Binance Balance Display */
+.balance-display {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(135deg, var(--binance-dark-gray) 0%, var(--binance-gray) 100%);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+}
+
+.balance-label {
+    font-size: 0.875rem;
+    color: var(--binance-text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.balance-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--binance-yellow);
+    line-height: 1;
+}
+
+.balance-subtext {
+    font-size: 0.75rem;
+    color: var(--binance-text-secondary);
+    margin-top: 0.5rem;
+}
+
+/* Binance Form Elements */
+.binance-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.binance-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--binance-text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.binance-input-group {
+    position: relative;
+}
+
+.binance-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.5rem;
+    background: var(--binance-black);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    color: var(--binance-text);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.binance-input:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    background: var(--binance-dark-gray);
+}
+
+.binance-input::placeholder {
+    color: var(--binance-text-secondary);
+}
+
+.binance-input-prefix {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--binance-text-secondary);
+    font-weight: 500;
+    z-index: 2;
+}
+
+.binance-select {
+    width: 100%;
+    padding: 1rem;
+    background: var(--binance-black);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    color: var(--binance-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23848e9c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 12px;
+}
+
+.binance-select:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    background: var(--binance-dark-gray);
+}
+
+.binance-select option {
+    background: var(--binance-dark-gray);
+    color: var(--binance-text);
+    padding: 0.5rem;
+}
+
+/* Binance Payment Method Cards */
+.payment-method-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-method-card {
+    background: var(--binance-black);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.payment-method-card:hover {
+    border-color: var(--binance-light-gray);
+}
+
+.payment-method-card.active {
+    border-color: var(--binance-yellow);
+    background: rgba(240, 185, 11, 0.05);
+}
+
+.payment-method-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.payment-method-icon.mpesa {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.payment-method-icon.paypal {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.payment-method-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--binance-text);
+    margin-bottom: 0.25rem;
+}
+
+.payment-method-status {
+    font-size: 0.625rem;
+    color: var(--binance-text-secondary);
+}
+
+/* Binance Status Indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-connected {
+    background: rgba(3, 166, 109, 0.1);
+    color: var(--binance-success);
+}
+
+.status-disconnected {
+    background: rgba(207, 48, 74, 0.1);
+    color: var(--binance-error);
+}
+
+/* Binance Buttons */
+.binance-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    width: 100%;
+}
+
+.binance-btn-primary {
+    background: var(--binance-yellow);
+    color: #000000;
+    border-color: var(--binance-yellow);
+}
+
+.binance-btn-primary:hover {
+    background: #e0ac0a;
+    border-color: #e0ac0a;
+    color: #000000;
+    transform: translateY(-1px);
+}
+
+.binance-btn-outline {
+    background: transparent;
+    color: var(--binance-text-secondary);
+    border-color: var(--binance-gray);
+}
+
+.binance-btn-outline:hover {
+    background: var(--binance-gray);
+    color: var(--binance-text);
+    border-color: var(--binance-light-gray);
+}
+
+/* Binance Alert Styles */
+.binance-alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.binance-alert-success {
+    background: rgba(3, 166, 109, 0.1);
+    border: 1px solid rgba(3, 166, 109, 0.3);
+    color: var(--binance-success);
+}
+
+.binance-alert-error {
+    background: rgba(207, 48, 74, 0.1);
+    border: 1px solid rgba(207, 48, 74, 0.3);
+    color: var(--binance-error);
+}
+
+.binance-alert-warning {
+    background: rgba(240, 185, 11, 0.1);
+    border: 1px solid rgba(240, 185, 11, 0.3);
+    color: var(--binance-warning);
+}
+
+/* Binance Conversion Display */
+.conversion-display {
+    background: var(--binance-black);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--binance-text-secondary);
+}
+
+.conversion-amount {
+    color: var(--binance-yellow);
+    font-weight: 500;
+}
+
+/* Binance Payment Info Cards */
+.payment-info-card {
+    background: var(--binance-black);
+    border: 1px solid var(--binance-gray);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.payment-info-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.payment-info-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--binance-text);
+    margin: 0;
+}
+
+.payment-info-description {
+    font-size: 0.75rem;
+    color: var(--binance-text-secondary);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Loading Spinner */
+.binance-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: binance-spin 1s linear infinite;
+}
+
+@keyframes binance-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .binance-container {
+        margin: 70px auto 1rem;
+        padding: 0 0.75rem;
+    }
+    
+    .payment-method-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Binance List Styles */
+.binance-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.binance-list-item {
+    padding: 0.5rem 0;
+    color: var(--binance-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.binance-list-item:before {
+    content: "•";
+    color: var(--binance-yellow);
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="binance-container">
+    <!-- Header Section -->
+    <div class="binance-card">
+        <div class="binance-card-header">
+            <h1 class="binance-card-title">Deposit Funds</h1>
+            <p class="binance-card-subtitle">Add money to your wallet</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div style="margin-bottom: 1rem;">
+        {% for message in messages %}
+        <div class="binance-alert {% if message.tags == 'success' %}binance-alert-success{% elif message.tags == 'error' %}binance-alert-error{% else %}binance-alert-warning{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Current Balance -->
+    <div class="balance-display">
+        <div class="balance-label">Current Balance</div>
+        <div class="balance-amount">${{ user_wallet.balance|default:"0.00" }}</div>
+        <div class="balance-subtext">Available for trading and purchases</div>
+    </div>
+
+    <!-- Deposit Form -->
+    <div class="binance-card">
+        <div class="binance-card-body">
+            <form method="post" id="depositForm">
+                {% csrf_token %}
+                
+                <!-- Display Form Errors -->
+                {% if form.errors %}
+                <div class="binance-alert binance-alert-error" style="margin-bottom: 1.5rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">Please correct the following errors:</strong>
+                    <div style="font-size: 0.75rem;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                            <div><strong>{{ field.label }}:</strong> {{ error }}</div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Amount Field -->
+                <div class="binance-form-group">
+                    <label class="binance-label" for="id_amount">Amount to Deposit</label>
+                    <div class="binance-input-group">
+                        <span class="binance-input-prefix">$</span>
+                        <input type="number" 
+                               name="amount" 
+                               id="id_amount"
+                               min="1"
+                               step="0.01"
+                               placeholder="0.00"
+                               value="{{ form.amount.value|default:'' }}"
+                               class="binance-input"
+                               required>
+                    </div>
+                    {% if form.amount.errors %}
+                    <div style="color: var(--binance-error); font-size: 0.75rem; margin-top: 0.5rem;">
+                        {% for error in form.amount.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div style="color: var(--binance-text-secondary); font-size: 0.75rem; margin-top: 0.5rem;">
+                        Minimum deposit: $1.00
+                    </div>
+                    <!-- KES Conversion Display -->
+                    <div id="kesConversion" class="conversion-display" style="display: none;">
+                        ≈ <span class="conversion-amount" id="kesAmount">0.00</span> KES
+                    </div>
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div class="binance-form-group">
+                    <label class="binance-label">Payment Method</label>
+                    <div class="payment-method-cards">
+                        <div class="payment-method-card" data-method="mpesa">
+                            <div class="payment-method-icon mpesa">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="payment-method-name">M-Pesa</div>
+                            <div class="payment-method-status">
+                                {% if user_wallet.mpesa_number %}
+                                <span class="status-indicator status-connected">Connected</span>
+                                {% else %}
+                                <span class="status-indicator status-disconnected">Not Set</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="payment-method-card" data-method="paypal">
+                            <div class="payment-method-icon paypal">
+                                <i class="fab fa-paypal"></i>
+                            </div>
+                            <div class="payment-method-name">PayPal</div>
+                            <div class="payment-method-status">
+                                {% if user_wallet.paypal_email %}
+                                <span class="status-indicator status-connected">Connected</span>
+                                {% else %}
+                                <span class="status-indicator status-disconnected">Not Set</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="payment_method" id="id_payment_method" value="{{ form.payment_method.value|default:'' }}" required>
+                </div>
+
+                <!-- Payment Method Specific Information -->
+                <div id="mpesaInfo" class="payment-info-card" style="display: none;">
+                    <div class="payment-info-header">
+                        <i class="fas fa-info-circle" style="color: #22c55e;"></i>
+                        <h4 class="payment-info-title">M-Pesa Payment</h4>
+                    </div>
+                    <p class="payment-info-description">
+                        You will receive an STK push on your phone to complete the payment. 
+                        {% if user_wallet.mpesa_number %}
+                        Using: <strong style="color: var(--binance-text);">{{ user_wallet.mpesa_number }}</strong>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div id="paypalInfo" class="payment-info-card" style="display: none;">
+                    <div class="payment-info-header">
+                        <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                        <h4 class="payment-info-title">PayPal Payment</h4>
+                    </div>
+                    <p class="payment-info-description">
+                        You will be redirected to PayPal to complete your payment securely.
+                        {% if user_wallet.paypal_email %}
+                        Using: <strong style="color: var(--binance-text);">{{ user_wallet.paypal_email }}</strong>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Setup Payment Methods Prompt -->
+                {% if not user_wallet.mpesa_number and not user_wallet.paypal_email %}
+                <div class="binance-alert binance-alert-warning">
+                    <div style="text-align: center;">
+                        <p style="margin: 0 0 1rem 0;">Please set up your payment methods first</p>
+                        <a href="{% url 'payment_methods' %}" class="binance-btn binance-btn-outline" style="width: auto; padding: 0.5rem 1rem;">
+                            Setup Payment Methods
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="submit" id="submitBtn" class="binance-btn binance-btn-primary" {% if not user_wallet.mpesa_number and not user_wallet.paypal_email %}disabled{% endif %}>
+                        <span id="submitText">Deposit Now</span>
+                        <div id="loadingSpinner" class="binance-spinner" style="display: none; margin-left: 0.5rem;"></div>
+                    </button>
+                    
+                    <a href="{% url 'wallet' %}" class="binance-btn binance-btn-outline">
+                        Back to Wallet
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Deposit Information -->
+    <div class="binance-card">
+        <div class="binance-card-header">
+            <h3 class="binance-card-title">Deposit Information</h3>
+        </div>
+        <div class="binance-card-body">
+            <ul class="binance-list">
+                <li class="binance-list-item">Deposits are processed instantly</li>
+                <li class="binance-list-item">M-Pesa deposits require STK push confirmation</li>
+                <li class="binance-list-item">PayPal deposits redirect for secure payment</li>
+                <li class="binance-list-item">All deposits use bank-level encryption</li>
+                <li class="binance-list-item">Contact support for any issues</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('id_amount');
+    const paymentMethodInput = document.getElementById('id_payment_method');
+    const paymentMethodCards = document.querySelectorAll('.payment-method-card');
+    const mpesaInfo = document.getElementById('mpesaInfo');
+    const paypalInfo = document.getElementById('paypalInfo');
+    const kesConversion = document.getElementById('kesConversion');
+    const kesAmount = document.getElementById('kesAmount');
+    const depositForm = document.getElementById('depositForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+
+    // Exchange rate
+    const USD_TO_KES_RATE = {{ exchange_rate|default:"150.00" }};
+
+    // Payment method selection
+    paymentMethodCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const method = this.dataset.method;
+            
+            // Remove active class from all cards
+            paymentMethodCards.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked card
+            this.classList.add('active');
+            
+            // Update hidden input
+            paymentMethodInput.value = method;
+            
+            // Show/hide info cards
+            mpesaInfo.style.display = method === 'mpesa' ? 'block' : 'none';
+            paypalInfo.style.display = method === 'paypal' ? 'block' : 'none';
+            
+            // Enable/disable submit button based on payment method setup
+            updateSubmitButtonState();
+        });
+    });
+
+    // Update KES conversion when amount changes
+    amountInput.addEventListener('input', function() {
+        const usdAmount = parseFloat(this.value) || 0;
+        const kesValue = (usdAmount * USD_TO_KES_RATE).toFixed(2);
+        
+        if (usdAmount > 0) {
+            kesAmount.textContent = kesValue;
+            kesConversion.style.display = 'block';
+        } else {
+            kesConversion.style.display = 'none';
+        }
+        
+        updateSubmitButtonState();
+    });
+
+    // Update submit button state
+    function updateSubmitButtonState() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const paymentMethod = paymentMethodInput.value;
+        const hasMpesa = '{{ user_wallet.mpesa_number|default:"" }}' !== '';
+        const hasPaypal = '{{ user_wallet.paypal_email|default:"" }}' !== '';
+        
+        let isValid = amount >= 1 && paymentMethod !== '';
+        
+        if (paymentMethod === 'mpesa' && !hasMpesa) {
+            isValid = false;
+        }
+        
+        if (paymentMethod === 'paypal' && !hasPaypal) {
+            isValid = false;
+        }
+        
+        submitBtn.disabled = !isValid;
+    }
+
+    // Handle form submission
+    depositForm.addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value);
+        const paymentMethod = paymentMethodInput.value;
+        
+        if (!amount || amount < 1) {
+            e.preventDefault();
+            return;
+        }
+        
+        if (!paymentMethod) {
+            e.preventDefault();
+            return;
+        }
+        
+        // Show loading state
+        submitText.textContent = 'Processing...';
+        loadingSpinner.style.display = 'block';
+        submitBtn.disabled = true;
+        
+        // For PayPal, handle redirect
+        if (paymentMethod === 'paypal') {
+            e.preventDefault();
+            
+            const paypalForm = document.createElement('form');
+            paypalForm.method = 'POST';
+            paypalForm.action = '{% url "initiate_paypal_deposit" %}';
+            
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            paypalForm.appendChild(csrfInput);
+            
+            const amountInput = document.createElement('input');
+            amountInput.type = 'hidden';
+            amountInput.name = 'amount';
+            amountInput.value = amount;
+            paypalForm.appendChild(amountInput);
+            
+            document.body.appendChild(paypalForm);
+            paypalForm.submit();
+        }
+    });
+
+    // Initialize button state
+    updateSubmitButtonState();
+});
+</script>
+{% endblock %}

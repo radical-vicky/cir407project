@@ -1,0 +1,2062 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crypto Analysis Marketplace - CryptoConsult{% endblock %}
+
+{% block content %}
+
+<style>
+:root {
+    --binance-yellow: #F0B90B;
+    --binance-green: #03A66D;
+    --binance-red: #CF304A;
+    --binance-blue: #017AFF;
+    --binance-dark: #0c0e14;
+    --binance-card: #161a25;
+    --binance-border: #2b3139;
+    --binance-hover: #1e2329;
+    --text-primary: #EAECEF;
+    --text-secondary: #848e9c;
+    --text-muted: #6c757d;
+    --accent-orange: #F0B90B;
+    --accent-purple: #7367F0;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Marketplace Container */
+.marketplace-container {
+    max-width: 1400px;
+    margin: 80px auto 2rem;
+    padding: 0 1rem;
+    min-height: calc(100vh - 80px);
+}
+
+/* Header Section */
+.marketplace-header {
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--binance-border);
+    text-align: center;
+}
+
+.marketplace-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--binance-yellow);
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+}
+
+.marketplace-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Stats Overview - Binance Style */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-item {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item:hover {
+    border-color: var(--binance-yellow);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item:nth-child(1) .stat-value { color: var(--binance-yellow); }
+.stat-item:nth-child(2) .stat-value { color: var(--binance-green); }
+.stat-item:nth-child(3) .stat-value { color: var(--binance-blue); }
+.stat-item:nth-child(4) .stat-value { color: var(--accent-purple); }
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.stat-link {
+    color: var(--binance-yellow);
+    font-size: 0.8rem;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    display: inline-block;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.stat-link:hover {
+    color: var(--binance-yellow);
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+
+/* Filters Section - Binance Style */
+.filters-section {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-label {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-input, .filter-select {
+    padding: 0.75rem 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.filter-input:focus, .filter-select:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1);
+}
+
+.filter-input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Analysis Packages Grid */
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.package-card {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.package-card:hover {
+    border-color: var(--binance-yellow);
+    background: var(--binance-hover);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+}
+
+.featured-badge {
+    position: absolute;
+    top: -8px;
+    right: 1.5rem;
+    background: linear-gradient(135deg, var(--binance-yellow), #e0ac0a);
+    color: #000000;
+    padding: 0.5rem 1rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 2;
+}
+
+.package-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.package-type {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.package-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--binance-blue), #0263cc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(1, 122, 255, 0.3);
+}
+
+.package-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.package-price {
+    text-align: right;
+}
+
+.price-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--binance-yellow);
+    margin-bottom: 0.25rem;
+}
+
+.price-label {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.package-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.package-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    background: var(--binance-dark);
+    border-radius: 6px;
+    border: 1px solid var(--binance-border);
+}
+
+.detail-icon {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    width: 16px;
+    text-align: center;
+}
+
+.detail-text {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.package-features {
+    margin-bottom: 1.5rem;
+}
+
+.features-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-item {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    padding: 0.4rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: var(--transition);
+}
+
+.feature-item:hover {
+    color: var(--text-primary);
+    transform: translateX(5px);
+}
+
+.feature-check {
+    color: var(--binance-green);
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.package-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Buttons - Binance Style */
+.btn {
+    padding: 0.75rem 1rem;
+    border: 1px solid;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--binance-yellow);
+    color: #000000;
+    border-color: var(--binance-yellow);
+}
+
+.btn-primary:hover {
+    background: #e0ac0a;
+    border-color: #e0ac0a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
+    color: #000000;
+    text-decoration: none;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--binance-border);
+}
+
+.btn-outline:hover {
+    background: var(--binance-hover);
+    border-color: var(--binance-yellow);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--binance-border);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.section-count {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Modal Styles - Binance Style */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--binance-red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: #b82a41;
+    transform: scale(1.1);
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Enhanced Payment Method Styles */
+.payment-method-section {
+    margin-bottom: 2rem;
+}
+
+.payment-method-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--binance-border);
+    padding-bottom: 1rem;
+}
+
+.payment-tab {
+    flex: 1;
+    padding: 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.payment-tab:hover {
+    border-color: var(--binance-yellow);
+    color: var(--text-primary);
+}
+
+.payment-tab.active {
+    border-color: var(--binance-yellow);
+    background: rgba(240, 185, 11, 0.1);
+    color: var(--binance-yellow);
+}
+
+.payment-tab-content {
+    display: none;
+}
+
+.payment-tab-content.active {
+    display: block;
+}
+
+.payment-method-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Wallet specific styles */
+.wallet-payment-info {
+    background: rgba(3, 166, 109, 0.1);
+    border: 1px solid rgba(3, 166, 109, 0.3);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.wallet-balance {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--binance-green);
+    margin-bottom: 0.5rem;
+}
+
+/* Enhanced form styles */
+.payment-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.payment-form-label {
+    display: block;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.payment-form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.payment-form-input:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1);
+}
+
+/* Enhanced button styles */
+.btn-payment {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-wallet {
+    background: var(--binance-green);
+    color: white;
+}
+
+.btn-wallet:hover:not(:disabled) {
+    background: #02b574;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(3, 166, 109, 0.3);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Payment processing states */
+.payment-status {
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.status-processing {
+    background: rgba(240, 185, 11, 0.1);
+    border: 1px solid rgba(240, 185, 11, 0.3);
+    color: var(--binance-yellow);
+}
+
+.status-success {
+    background: rgba(3, 166, 109, 0.1);
+    border: 1px solid rgba(3, 166, 109, 0.3);
+    color: var(--binance-green);
+}
+
+.status-error {
+    background: rgba(207, 48, 74, 0.1);
+    border: 1px solid rgba(207, 48, 74, 0.3);
+    color: var(--binance-red);
+}
+
+/* Error States */
+.error-message {
+    background: rgba(207, 48, 74, 0.1);
+    border: 1px solid rgba(207, 48, 74, 0.3);
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--binance-red);
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.success-message {
+    background: rgba(3, 166, 109, 0.1);
+    border: 1px solid rgba(3, 166, 109, 0.3);
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--binance-green);
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Processing States */
+.processing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(30, 35, 41, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    z-index: 10;
+    backdrop-filter: blur(5px);
+}
+
+.processing-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(240, 185, 11, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--binance-yellow);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1.5rem;
+}
+
+.processing-text {
+    color: var(--binance-yellow);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.processing-details {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-align: center;
+    max-width: 250px;
+}
+
+/* Loading States */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(240, 185, 11, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--binance-yellow);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Analysis Type Badges */
+.analysis-type-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.technical { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+.fundamental { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.trading { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.market { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+/* Risk Level Badges */
+.risk-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.low { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.high { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* Recommendation Badges */
+.recommendation-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.buy { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.sell { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.hold { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+.strong_buy { background: rgba(5, 150, 105, 0.2); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); }
+.strong_sell { background: rgba(220, 38, 38, 0.2); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.3); }
+
+/* Phone Input Group */
+.phone-input-group {
+    display: flex;
+    align-items: center;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.phone-prefix {
+    padding: 0.875rem 1rem;
+    background: var(--binance-hover);
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-right: 1px solid var(--binance-border);
+}
+
+.phone-input-group .payment-form-input {
+    border: none;
+    border-radius: 0;
+    flex: 1;
+}
+
+/* M-Pesa Instructions */
+.mpesa-instructions {
+    background: rgba(1, 122, 255, 0.1);
+    border: 1px solid rgba(1, 122, 255, 0.3);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.mpesa-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.mpesa-steps li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mpesa-steps li:before {
+    content: "•";
+    color: var(--binance-blue);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Enhanced M-Pesa Pending Modal */
+.mpesa-pending-modal .modal-content {
+    max-width: 400px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhanced error states */
+.error-details {
+    background: rgba(207, 48, 74, 0.05);
+    border: 1px solid rgba(207, 48, 74, 0.2);
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.retry-button {
+    background: var(--binance-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 1rem;
+}
+
+.retry-button:hover {
+    background: #0263cc;
+    transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .packages-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .marketplace-container {
+        margin: 70px auto 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .marketplace-title {
+        font-size: 2rem;
+    }
+    
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .package-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-overview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .payment-method-tabs {
+        flex-direction: column;
+    }
+    
+    .payment-tab {
+        flex: none;
+    }
+    
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-overview {
+        grid-template-columns: 1fr;
+    }
+    
+    .package-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .marketplace-header {
+        padding: 1.5rem 0;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+</style>
+
+<div class="marketplace-container">
+    <!-- Header Section -->
+    <div class="marketplace-header">
+        <h1 class="marketplace-title">Crypto Analysis Marketplace</h1>
+        <p class="marketplace-subtitle">Premium cryptocurrency analysis reports and trading insights</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+        <div class="stat-item">
+            <div class="stat-value">$<span id="creditBalanceText">{{ user_wallet.balance|default:"0.00" }}</span></div>
+            <div class="stat-label">Available Balance</div>
+            <a href="{% url 'add_funds' %}" class="stat-link">Add Funds</a>
+        </div>
+        
+        <div class="stat-item">
+            <div class="stat-value" id="purchasedAnalysesCount">{{ purchased_count }}</div>
+            <div class="stat-label">Purchased Analyses</div>
+            <a href="{% url 'purchase_analysis' %}" class="stat-link">View All</a>
+        </div>
+        
+        <div class="stat-item">
+            <div class="stat-value" id="availableAnalysesCount">{{ analyses.count }}</div>
+            <div class="stat-label">Available Reports</div>
+            <div class="stat-link">Market Insights</div>
+        </div>
+        
+        <div class="stat-item">
+            <div class="stat-value" id="successRateText">92%</div>
+            <div class="stat-label">Success Rate</div>
+            <div class="stat-link">Track Record</div>
+        </div>
+    </div>
+
+    <!-- User Info Section -->
+    <div class="filters-section">
+        <div class="filters-grid">
+            <!-- User Greeting -->
+            <div class="filter-group">
+                <label class="filter-label">Welcome</label>
+                <div style="position: relative;">
+                    <input type="text" 
+                           id="userNameDisplay"
+                           value="{% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}"
+                           class="filter-input"
+                           readonly
+                           style="background: var(--binance-dark); color: var(--text-primary);">
+                </div>
+            </div>
+
+            <!-- Account Status -->
+            <div class="filter-group">
+                <label class="filter-label">Account Status</label>
+                <div style="position: relative;">
+                    <input type="text" 
+                           id="accountStatusDisplay"
+                           value="{% if user.is_authenticated %}Active{% else %}Guest{% endif %}"
+                           class="filter-input"
+                           readonly
+                           style="background: var(--binance-dark); color: var(--text-primary);">
+                </div>
+            </div>
+
+            <!-- Analysis Type Filter -->
+            <div class="filter-group">
+                <label class="filter-label">Analysis Type</label>
+                <select class="filter-select" id="analysisTypeFilter">
+                    <option value="all">All Types</option>
+                    <option value="technical">Technical Analysis</option>
+                    <option value="fundamental">Fundamental Analysis</option>
+                    <option value="trading">Trading Signals</option>
+                    <option value="market">Market Research</option>
+                </select>
+            </div>
+
+            <!-- Refresh Button -->
+            <div class="filter-group">
+                <label class="filter-label">&nbsp;</label>
+                <button id="refreshBtn" class="btn btn-outline" style="width: 100%;">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="filters-section">
+        <div style="display: flex; gap: 1rem; align-items: end;">
+            <div class="filter-group" style="flex: 1;">
+                <label class="filter-label">Search Cryptocurrencies</label>
+                <div style="position: relative;">
+                    <input type="text" 
+                           class="filter-input"
+                           placeholder="Search BTC, ETH, ADA, etc..."
+                           id="searchInput"
+                           value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">&nbsp;</label>
+                <button class="btn btn-primary" id="searchBtn">
+                    <i class="fas fa-search"></i> SEARCH
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Packages Grid -->
+    <div>
+        <div class="section-header">
+            <h2 class="section-title">Premium Crypto Analysis Signal Alerts</h2>
+            
+            <div class="section-count">Showing <span id="analysesCount">{{ analyses.count }}</span> analyses</div>
+        </div>
+
+        <div class="packages-grid" id="analysesGrid">
+            {% if analyses %}
+                {% for analysis in analyses %}
+                <div class="package-card" data-analysis-id="{{ analysis.id }}" data-type="{{ analysis.analysis_type }}" data-risk="{{ analysis.risk_level }}" data-recommendation="{{ analysis.recommendation }}">
+                    {% if analysis.is_featured %}
+                    <div class="featured-badge">Featured</div>
+                    {% endif %}
+                    
+                    <div class="package-header">
+                        <div class="package-type">
+                            <div class="package-icon" style="background: linear-gradient(135deg, {{ analysis.cryptocurrency|lower }});">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div>
+                                <h3 class="package-name">{{ analysis.cryptocurrency }} Analysis</h3>
+                                <div style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
+                                    {{ analysis.symbol }} • {{ analysis.overall_score }}/10 Rating
+                                </div>
+                            </div>
+                        </div>
+                        <div class="package-price">
+                            <div class="price-value">${{ analysis.price }}</div>
+                            <div class="price-label">One-time purchase</div>
+                        </div>
+                    </div>
+
+                    <p class="package-description">
+                        {{ analysis.description|truncatewords:20 }}
+                    </p>
+
+                    <div class="package-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">⏱️</span>
+                            <span class="detail-text">{{ analysis.get_timeframe_display }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">📈</span>
+                            <span class="detail-text">{{ analysis.growth_potential }} Growth</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">🔄</span>
+                            <span class="detail-text">{{ analysis.get_analysis_type_display }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">🛡️</span>
+                            <span class="detail-text">{{ analysis.get_risk_level_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="package-features">
+                        <h4 class="features-title">Analysis Includes:</h4>
+                        <ul class="features-list">
+                            {% for feature in analysis.features_list|slice:":4" %}
+                            <li class="feature-item">
+                                <span class="feature-check">✓</span>
+                                {{ feature }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Analysis Metadata -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <span class="analysis-type-badge {{ analysis.analysis_type }}">
+                            {{ analysis.get_analysis_type_display }}
+                        </span>
+                        <span class="risk-badge {{ analysis.risk_level }}">
+                            {{ analysis.get_risk_level_display }} Risk
+                        </span>
+                        <span class="recommendation-badge {{ analysis.recommendation }}">
+                            {{ analysis.get_recommendation_display }}
+                        </span>
+                    </div>
+
+                    <div class="package-actions">
+                        {% if analysis.id in purchased_analysis_ids %}
+                            <a href="{% url 'view_analysis' analysis.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i>
+                                View Report
+                            </a>
+                        {% else %}
+                            <button onclick="openPurchaseModal({{ analysis.id }})" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart"></i>
+                                Purchase Report
+                            </button>
+                        {% endif %}
+                        <button class="btn btn-outline" onclick="showAnalysisDetails({{ analysis.id }})">
+                            <i class="fas fa-info-circle"></i>
+                            Details
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h3>No Analysis Reports Available</h3>
+                    <p>Check back later for new crypto analysis reports.</p>
+                    {% if search_query or selected_type or selected_risk or selected_recommendation %}
+                    <button onclick="clearFilters()" class="btn btn-primary">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Purchased Analyses -->
+    <div style="margin-top: 3rem;">
+        <div class="section-header">
+            <h2 class="section-title">Your Purchased Analyses</h2>
+            <div class="section-count" id="purchasedAnalysesHeader">{{ purchased_count }} analyses</div>
+        </div>
+
+        <div id="purchasedAnalysesBox">
+            {% if purchased_analyses %}
+                <div class="packages-grid">
+                    {% for purchase in purchased_analyses|slice:":3" %}
+                    <div class="package-card">
+                        <div class="package-header">
+                            <div class="package-type">
+                                <div class="package-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <h3 class="package-name">{{ purchase.analysis.cryptocurrency }} Analysis</h3>
+                                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
+                                        Purchased {{ purchase.purchased_at|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="package-description">
+                            {{ purchase.analysis.description|truncatewords:15 }}
+                        </p>
+
+                        <div class="package-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">💰</span>
+                                <span class="detail-text">${{ purchase.purchase_price }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon">⭐</span>
+                                <span class="detail-text">
+                                    {% if purchase.rating_given %}
+                                        {{ purchase.rating_given }}/5
+                                    {% else %}
+                                        Not Rated
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="package-actions">
+                            <a href="{% url 'view_analysis' purchase.analysis.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i>
+                                View Report
+                            </a>
+                            <button class="btn btn-outline" onclick="showAnalysisDetails({{ purchase.analysis.id }})">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if purchased_analyses.count > 3 %}
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="{% url 'purchase_analysis' %}" class="btn btn-outline">
+                        <i class="fas fa-list"></i> View All Purchased Analyses
+                    </a>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <h3>No Purchased Analyses</h3>
+                    <p>You haven't purchased any analysis reports yet.</p>
+                    <a href="#analysesGrid" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart"></i> Browse Analyses
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Purchase Modal with Multiple Payment Methods -->
+<div id="purchaseModal" class="modal">
+    <div class="modal-content">
+        <button onclick="closePurchaseModal()" class="modal-close">
+            ×
+        </button>
+        
+        <h2 class="modal-title">Purchase Analysis Report</h2>
+        
+        <div id="purchaseModalContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Details Modal -->
+<div id="analysisDetailsModal" class="modal">
+    <div class="modal-content">
+        <button onclick="closeAnalysisDetailsModal()" class="modal-close">
+            ×
+        </button>
+        
+        <h2 class="modal-title">Analysis Details</h2>
+        
+        <div id="analysisDetailsContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Status Modal -->
+<div id="statusModal" class="modal">
+    <div class="modal-content">
+        <div style="text-align: center; padding: 2rem;">
+            <div id="statusModalIcon" style="font-size: 3rem; margin-bottom: 1rem;">
+                <i class="fas fa-check-circle" style="color: var(--binance-green);"></i>
+            </div>
+            <h3 id="statusModalTitle" style="color: var(--text-primary); margin-bottom: 1rem;">Purchase Status</h3>
+            <p id="statusModalMessage" style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Processing your request...
+            </p>
+            <button onclick="closeStatusModal()" class="btn btn-primary">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentAnalysisId = null;
+let purchaseInProgress = false;
+let currentPaymentMethod = 'wallet';
+let userCredit = {{ user_wallet.balance|default:"0" }};
+let mpesaPollingInterval = null;
+let isOnline = true;
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Crypto Analysis Marketplace initialized');
+    initializeApp();
+    bindEventListeners();
+    initializeFilters();
+});
+
+function initializeApp() {
+    // Update UI with real data
+    updateUserInterface();
+}
+
+function updateUserInterface() {
+    // Balances are already set from Django template
+    console.log('User interface initialized with real data');
+}
+
+function initializeFilters() {
+    // Set current filter values from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const typeFilter = document.getElementById('analysisTypeFilter');
+    if (typeFilter && urlParams.get('type')) {
+        typeFilter.value = urlParams.get('type');
+        filterAnalysesByType(typeFilter.value);
+    }
+}
+
+// Enhanced purchase modal for crypto analyses
+async function openPurchaseModal(analysisId) {
+    if (purchaseInProgress) {
+        return;
+    }
+    
+    {% if not user.is_authenticated %}
+        window.location.href = "{% url 'account_login' %}";
+        return;
+    {% endif %}
+    
+    const modal = document.getElementById('purchaseModal');
+    const content = document.getElementById('purchaseModalContent');
+    
+    currentAnalysisId = analysisId;
+    currentPaymentMethod = 'wallet';
+    
+    // Show loading state
+    content.innerHTML = showLoading();
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    try {
+        // Fetch analysis details from server
+        const response = await fetch(`/api/analysis/${analysisId}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const analysis = await response.json();
+        
+        // Show enhanced purchase options
+        content.innerHTML = `
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="width: 60px; height: 60px; border-radius: 8px; background: linear-gradient(135deg, #017AFF, #0263CC); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; color: #ffffff; font-size: 1.5rem;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 style="color: #eaecef; font-size: 1.1rem; margin-bottom: 0.5rem;">${analysis.cryptocurrency} Analysis</h3>
+                <p style="color: #848e9c; font-size: 0.8rem;">${analysis.description}</p>
+            </div>
+            
+            <div style="background: var(--binance-dark); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: #848e9c;">Price:</span>
+                    <span style="color: var(--binance-yellow); font-weight: 600; font-size: 1.1rem;">$${analysis.price}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #848e9c;">Your Balance:</span>
+                    <span style="color: ${userCredit >= analysis.price ? '#03a66d' : '#cf304a'}; font-weight: 600;">$${userCredit.toFixed(2)}</span>
+                </div>
+            </div>
+            
+            <!-- Analysis Details -->
+            <div style="background: var(--binance-dark); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                <h4 style="color: #eaecef; margin-bottom: 0.75rem; font-size: 0.9rem;">Report Details:</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+                    <div style="color: #848e9c;">Type:</div>
+                    <div style="color: #eaecef;">${analysis.analysis_type_display}</div>
+                    <div style="color: #848e9c;">Risk Level:</div>
+                    <div style="color: #eaecef;">${analysis.risk_level_display}</div>
+                    <div style="color: #848e9c;">Recommendation:</div>
+                    <div style="color: #eaecef;">${analysis.recommendation_display}</div>
+                    <div style="color: #848e9c;">Timeframe:</div>
+                    <div style="color: #eaecef;">${analysis.timeframe_display}</div>
+                </div>
+            </div>
+            
+            <!-- Payment Method -->
+            <div class="payment-method-section">
+                <div class="payment-method-tabs">
+                    <div class="payment-tab active" data-method="wallet" onclick="switchPaymentMethod('wallet')">
+                        <div class="payment-method-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div>Wallet</div>
+                    </div>
+                    <div class="payment-tab" data-method="mpesa" onclick="switchPaymentMethod('mpesa')">
+                        <div class="payment-method-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div>M-Pesa</div>
+                    </div>
+                </div>
+                
+                <!-- Wallet Payment -->
+                <div id="walletPayment" class="payment-tab-content active">
+                    <div class="wallet-payment-info">
+                        <div class="wallet-balance">$${userCredit.toFixed(2)}</div>
+                        <div style="color: #848e9c; font-size: 0.875rem;">Available Balance</div>
+                    </div>
+                    
+                    ${userCredit >= parseFloat(analysis.price) ? `
+                        <button onclick="processWalletPayment(${analysis.id}, ${analysis.price})" class="btn-payment btn-wallet">
+                            <i class="fas fa-bolt"></i> Purchase Report - $${analysis.price}
+                        </button>
+                    ` : `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i> Insufficient wallet balance
+                        </div>
+                        <a href="{% url 'deposit_funds' %}" class="btn-payment" style="background: #03a66d; color: white; text-decoration: none;">
+                            <i class="fas fa-wallet"></i> Add Funds to Wallet
+                        </a>
+                    `}
+                </div>
+                
+                <!-- M-Pesa Payment -->
+                <div id="mpesaPayment" class="payment-tab-content">
+                    <div class="mpesa-instructions">
+                        <h4 style="color: #007bff; margin-bottom: 1rem;">M-Pesa Payment Instructions</h4>
+                        <ul class="mpesa-steps">
+                            <li>Enter your M-Pesa registered phone number</li>
+                            <li>You will receive an STK push on your phone</li>
+                            <li>Enter your M-Pesa PIN when prompted</li>
+                            <li>Analysis will be available immediately after payment</li>
+                        </ul>
+                    </div>
+                    
+                    <form id="mpesaForm" onsubmit="processMpesaPayment(event, ${analysis.id}, ${analysis.price})">
+                        <div class="payment-form-group">
+                            <label class="payment-form-label">M-Pesa Phone Number</label>
+                            <div class="phone-input-group">
+                                <div class="phone-prefix">+254</div>
+                                <input type="tel" 
+                                       name="phone_number" 
+                                       value="{{ user_wallet.mpesa_number|default:'' }}" 
+                                       required 
+                                       placeholder="712345678"
+                                       class="payment-form-input"
+                                       pattern="[0-9]{9}"
+                                       maxlength="9"
+                                       inputmode="numeric">
+                            </div>
+                            <div style="color: #64748b; font-size: 0.75rem; margin-top: 0.25rem;">
+                                Format: 7XXXXXXXX (without country code)
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-payment btn-mpesa" id="mpesaSubmitBtn">
+                            <i class="fas fa-mobile-alt"></i> Pay with M-Pesa - $${analysis.price}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Error loading purchase modal:', error);
+        content.innerHTML = `
+            <div style="text-align: center;">
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> Failed to load analysis details
+                </div>
+                <div class="error-details">
+                    <strong>Error details:</strong><br>
+                    ${error.message}
+                </div>
+                <button onclick="closePurchaseModal()" class="btn btn-outline" style="margin-top: 1rem;">
+                    Close
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Enhanced M-Pesa payment processing with better error handling
+async function processMpesaPayment(event, analysisId, price) {
+    event.preventDefault();
+    
+    if (purchaseInProgress) {
+        showPurchaseError('Another purchase is already in progress. Please wait.');
+        return;
+    }
+    
+    purchaseInProgress = true;
+    
+    const form = event.target;
+    const phoneInput = form.phone_number;
+    const submitBtn = document.getElementById('mpesaSubmitBtn');
+    const phoneNumber = phoneInput.value.trim();
+    
+    // Enhanced phone number validation
+    if (!phoneNumber) {
+        showPurchaseError('Please enter your M-Pesa phone number');
+        purchaseInProgress = false;
+        return;
+    }
+    
+    if (!/^[0-9]{9}$/.test(phoneNumber)) {
+        showPurchaseError('Please enter a valid 9-digit M-Pesa phone number (without country code)');
+        purchaseInProgress = false;
+        return;
+    }
+    
+    // Validate phone number starts with 7
+    if (!/^7/.test(phoneNumber)) {
+        showPurchaseError('M-Pesa phone number must start with 7 (e.g., 712345678)');
+        purchaseInProgress = false;
+        return;
+    }
+    
+    // Disable submit button and show processing state
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    }
+    
+    showProcessingState(analysisId);
+    closePurchaseModal();
+    
+    try {
+        const response = await fetch('{% url "purchase_analysis_mpesa" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: new URLSearchParams({
+                'analysis_id': analysisId,
+                'phone_number': phoneNumber,
+                'amount': price
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('M-Pesa Response:', result);
+        
+        if (result.status === 'success') {
+            // Show M-Pesa pending state
+            showMpesaPending(analysisId, result);
+            
+            // Start polling for payment status
+            pollMpesaPaymentStatus(result.checkout_request_id, analysisId);
+            
+        } else if (result.status === 'already_purchased') {
+            showPurchaseError(result.message);
+            setTimeout(() => {
+                window.location.href = result.redirect_url;
+            }, 2000);
+        } else {
+            // Enhanced error handling with specific messages
+            let errorMessage = result.message || 'Payment initiation failed. Please try again.';
+            
+            // Provide user-friendly error messages based on error codes
+            if (result.error_code) {
+                switch(result.error_code) {
+                    case '1032':
+                        errorMessage = 'Payment request cancelled by user. Please try again.';
+                        break;
+                    case '1037':
+                        errorMessage = 'Transaction timed out. Please try again.';
+                        break;
+                    case '1031':
+                        errorMessage = 'Insufficient M-Pesa balance. Please check your balance and try again.';
+                        break;
+                    case '1':
+                        errorMessage = 'M-Pesa service temporarily unavailable. Please try again in a few minutes.';
+                        break;
+                    default:
+                        errorMessage = `M-Pesa Error: ${errorMessage}`;
+                }
+            }
+            
+            showPurchaseError(errorMessage);
+        }
+        
+    } catch (error) {
+        console.error('M-Pesa payment error:', error);
+        
+        // More specific error messages based on error type
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            showPurchaseError('Network error. Please check your internet connection and try again.');
+        } else if (error.name === 'SyntaxError') {
+            showPurchaseError('Invalid response from server. Please try again.');
+        } else if (error.message.includes('HTTP error')) {
+            showPurchaseError('Server error. Please try again in a few moments.');
+        } else {
+            showPurchaseError('Payment processing failed. Please try again or use wallet payment.');
+        }
+    } finally {
+        purchaseInProgress = false;
+        
+        // Re-enable submit button
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-mobile-alt"></i> Pay with M-Pesa - $' + price;
+        }
+    }
+}
+
+// Enhanced M-Pesa payment status polling with retry logic
+async function pollMpesaPaymentStatus(checkoutRequestId, analysisId) {
+    const maxAttempts = 36; // 3 minutes at 5-second intervals
+    let attempts = 0;
+    
+    // Clear any existing interval
+    if (mpesaPollingInterval) {
+        clearInterval(mpesaPollingInterval);
+    }
+    
+    const poll = async () => {
+        attempts++;
+        
+        try {
+            const response = await fetch(`/check-mpesa-status/${checkoutRequestId}/`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log(`Polling attempt ${attempts}:`, result);
+            
+            if (result.status === 'success') {
+                // Payment successful
+                clearInterval(mpesaPollingInterval);
+                closePendingModal();
+                showPurchaseSuccess(analysisId, result);
+                
+                // Update user credit if returned
+                if (result.new_balance) {
+                    userCredit = parseFloat(result.new_balance);
+                    document.getElementById('creditBalanceText').textContent = userCredit.toFixed(2);
+                }
+                
+                setTimeout(() => {
+                    window.location.href = `/view-analysis/${analysisId}/`;
+                }, 2500);
+                
+            } else if (result.status === 'failed' || result.status === 'cancelled') {
+                // Payment failed or was cancelled
+                clearInterval(mpesaPollingInterval);
+                closePendingModal();
+                showPurchaseError(result.message || 'Payment failed. Please try again.');
+                
+            } else if (attempts >= maxAttempts) {
+                // Timeout
+                clearInterval(mpesaPollingInterval);
+                closePendingModal();
+                showPurchaseError('Payment timeout. Please check your M-Pesa transactions or try again.');
+            }
+            // If status is still pending, continue polling
+            
+        } catch (error) {
+            console.error('Polling error:', error);
+            
+            if (attempts >= maxAttempts) {
+                clearInterval(mpesaPollingInterval);
+                closePendingModal();
+                showPurchaseError('Unable to verify payment status. Please check your M-Pesa transactions.');
+            }
+        }
+    };
+    
+    // Start polling immediately and then every 5 seconds
+    mpesaPollingInterval = setInterval(poll, 5000);
+    poll(); // Initial call
+}
+
+// Enhanced M-Pesa pending modal
+function showMpesaPending(analysisId, result) {
+    const pendingModal = document.createElement('div');
+    pendingModal.className = 'modal mpesa-pending-modal';
+    pendingModal.style.display = 'flex';
+    pendingModal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+            <div style="text-align: center; padding: 2rem;">
+                <div style="color: #007bff; font-size: 3rem; margin-bottom: 1rem;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 style="color: #007bff; margin-bottom: 1rem;">Check Your Phone</h3>
+                <p style="color: #848e9c; margin-bottom: 1.5rem; line-height: 1.5;">
+                    We've sent an M-Pesa STK push to your phone.<br>
+                    Please check your phone and enter your M-Pesa PIN to complete the payment.
+                </p>
+                
+                <div style="background: var(--binance-dark); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.8rem; color: #848e9c; margin-bottom: 0.5rem;">Transaction Reference:</div>
+                    <div style="font-family: monospace; font-size: 0.9rem; color: #eaecef; word-break: break-all;">
+                        ${result.checkout_request_id || 'N/A'}
+                    </div>
+                </div>
+                
+                <div class="processing-spinner" style="margin: 0 auto 1rem; width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div style="color: #848e9c; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    Waiting for payment confirmation...
+                </div>
+                <div style="color: #64748b; font-size: 0.8rem;">
+                    This may take up to 3 minutes
+                </div>
+                
+                <button onclick="cancelMpesaPayment()" class="btn btn-outline" style="margin-top: 1.5rem; width: 100%;">
+                    <i class="fas fa-times"></i> Cancel Payment
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(pendingModal);
+    document.body.style.overflow = 'hidden';
+    
+    // Store reference for closing
+    window.currentPendingModal = pendingModal;
+}
+
+// Cancel M-Pesa payment
+function cancelMpesaPayment() {
+    // Clear polling interval
+    if (mpesaPollingInterval) {
+        clearInterval(mpesaPollingInterval);
+        mpesaPollingInterval = null;
+    }
+    
+    closePendingModal();
+    showPurchaseError('Payment cancelled. You can try again anytime.');
+}
+
+// Enhanced close pending modal
+function closePendingModal() {
+    if (window.currentPendingModal) {
+        window.currentPendingModal.remove();
+        window.currentPendingModal = null;
+    }
+    
+    // Clear polling interval
+    if (mpesaPollingInterval) {
+        clearInterval(mpesaPollingInterval);
+        mpesaPollingInterval = null;
+    }
+    
+    document.body.style.overflow = '';
+}
+
+// Show analysis details
+async function showAnalysisDetails(analysisId) {
+    const modal = document.getElementById('analysisDetailsModal');
+    const content = document.getElementById('analysisDetailsContent');
+    
+    // Show loading state
+    content.innerHTML = showLoading('Loading Analysis Details', 'Please wait...');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    try {
+        // Fetch analysis details from server
+        const response = await fetch(`/api/analysis/${analysisId}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const analysis = await response.json();
+        
+        content.innerHTML = `
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="width: 60px; height: 60px; border-radius: 8px; background: linear-gradient(135deg, #017AFF, #0263CC); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; color: #ffffff; font-size: 1.5rem;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 style="color: #eaecef; font-size: 1.1rem; margin-bottom: 0.5rem;">${analysis.cryptocurrency} Analysis</h3>
+            </div>
+            
+            <div style="background: var(--binance-dark); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                <h4 style="color: #eaecef; margin-bottom: 1rem; font-size: 1rem;">Report Overview</h4>
+                <p style="color: #848e9c; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                    ${analysis.description}
+                </p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.8rem;">
+                    <div>
+                        <div style="color: #848e9c;">Analysis Type</div>
+                        <div style="color: #eaecef; font-weight: 600;">${analysis.analysis_type_display}</div>
+                    </div>
+                    <div>
+                        <div style="color: #848e9c;">Risk Level</div>
+                        <div style="color: #eaecef;">${analysis.risk_level_display}</div>
+                    </div>
+                    <div>
+                        <div style="color: #848e9c;">Recommendation</div>
+                        <div style="color: #eaecef;">${analysis.recommendation_display}</div>
+                    </div>
+                    <div>
+                        <div style="color: #848e9c;">Timeframe</div>
+                        <div style="color: #eaecef;">${analysis.timeframe_display}</div>
+                    </div>
+                    <div>
+                        <div style="color: #848e9c;">Overall Score</div>
+                        <div style="color: #03a66d; font-weight: 600; font-size: 1rem;">${analysis.overall_score}/10</div>
+                    </div>
+                    <div>
+                        <div style="color: #848e9c;">Growth Potential</div>
+                        <div style="color: #10b981; font-weight: 600;">${analysis.growth_potential}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: var(--binance-dark); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                <h4 style="color: #eaecef; margin-bottom: 1rem; font-size: 1rem;">What's Included</h4>
+                <ul style="color: #848e9c; font-size: 0.9rem; padding-left: 1rem;">
+                    ${analysis.features_list.map(feature => `<li style="margin-bottom: 0.5rem;">${feature}</li>`).join('')}
+                </ul>
+            </div>
+            
+            ${analysis.id in {{ purchased_analysis_ids }} ? `
+                <a href="/view-analysis/${analysis.id}/" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-eye"></i> View Full Report
+                </a>
+            ` : `
+                <button onclick="openPurchaseModal(${analysis.id})" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-shopping-cart"></i> Purchase Report - $${analysis.price}
+                </button>
+            `}
+        `;
+        
+    } catch (error) {
+        console.error('Error loading analysis details:', error);
+        content.innerHTML = `
+            <div style="text-align: center;">
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> Failed to load analysis details
+                </div>
+                <div class="error-details">
+                    <strong>Error details:</strong><br>
+                    ${error.message}
+                </div>
+                <button onclick="closeAnalysisDetailsModal()" class="btn btn-outline" style="margin-top: 1rem;">
+                    Close
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Switch between payment methods
+function switchPaymentMethod(method) {
+    currentPaymentMethod = method;
+    
+    // Update tabs
+    document.querySelectorAll('.payment-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`.payment-tab[data-method="${method}"]`).classList.add('active');
+    
+    // Update content
+    document.querySelectorAll('.payment-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${method}Payment`).classList.add('active');
+}
+
+// Process wallet payment
+async function processWalletPayment(analysisId, price) {
+    if (purchaseInProgress) return;
+    
+    purchaseInProgress = true;
+    showProcessingState(analysisId);
+    closePurchaseModal();
+    
+    try {
+        const response = await fetch('{% url "instant_purchase" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: `analysis_id=${analysisId}`
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            // Update UI
+            userCredit = parseFloat(result.new_balance);
+            document.getElementById('creditBalanceText').textContent = userCredit.toFixed(2);
+            
+            showPurchaseSuccess(analysisId, result);
+            
+            // Reload the page after a delay to show updated purchase status
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
+        } else if (result.status === 'already_purchased') {
+            showPurchaseError('You already own this analysis.');
+            setTimeout(() => {
+                window.location.href = result.redirect_url;
+            }, 1500);
+        } else {
+            showPurchaseError(result.message);
+        }
+        
+    } catch (error) {
+        console.error('Wallet payment error:', error);
+        showPurchaseError('Network error. Please try again.');
+    } finally {
+        purchaseInProgress = false;
+    }
+}
+
+// Modal management functions
+function closePurchaseModal() {
+    document.getElementById('purchaseModal').style.display = 'none';
+    document.body.style.overflow = '';
+    currentAnalysisId = null;
+    currentPaymentMethod = 'wallet';
+}
+
+function closeAnalysisDetailsModal() {
+    document.getElementById('analysisDetailsModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function closeStatusModal() {
+    document.getElementById('statusModal').style.display = 'none';
+}
+
+// Utility functions
+function showLoading(title = 'Loading', message = 'Please wait...') {
+    return `
+        <div style="text-align: center; padding: 2rem;">
+            <div class="loading" style="margin: 0 auto 1rem;"></div>
+            <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">${title}</h3>
+            <p style="color: var(--text-secondary);">${message}</p>
+        </div>
+    `;
+}
+
+function showError(message) {
+    return `
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i> ${message}
+        </div>
+    `;
+}
+
+function showPurchaseSuccess(analysisId, result) {
+    document.getElementById('statusModalIcon').innerHTML = '<i class="fas fa-check-circle" style="color: var(--binance-green);"></i>';
+    document.getElementById('statusModalTitle').textContent = 'Purchase Successful!';
+    document.getElementById('statusModalMessage').textContent = result.message || 'Analysis purchased successfully! You can now access the full report.';
+    document.getElementById('statusModal').style.display = 'flex';
+}
+
+function showPurchaseError(message) {
+    document.getElementById('statusModalIcon').innerHTML = '<i class="fas fa-exclamation-triangle" style="color: var(--binance-red);"></i>';
+    document.getElementById('statusModalTitle').textContent = 'Purchase Failed';
+    document.getElementById('statusModalMessage').textContent = message;
+    document.getElementById('statusModal').style.display = 'flex';
+}
+
+function showProcessingState(analysisId) {
+    // You can implement a more sophisticated processing overlay here
+    console.log('Processing purchase for analysis:', analysisId);
+}
+
+// Get CSRF Token
+function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfToken ? csrfToken.value : '';
+}
+
+// Event listeners
+function bindEventListeners() {
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        window.location.reload();
+    });
+    
+    // Search functionality
+    document.getElementById('searchBtn').addEventListener('click', function() {
+        performSearch();
+    });
+    
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+    
+    // Analysis type filter
+    document.getElementById('analysisTypeFilter').addEventListener('change', function() {
+        performSearch();
+    });
+}
+
+function performSearch() {
+    const searchTerm = document.getElementById('searchInput').value;
+    const analysisType = document.getElementById('analysisTypeFilter').value;
+    
+    let url = '{% url "marketplace" %}?';
+    const params = [];
+    
+    if (searchTerm) {
+        params.push(`search=${encodeURIComponent(searchTerm)}`);
+    }
+    
+    if (analysisType && analysisType !== 'all') {
+        params.push(`type=${encodeURIComponent(analysisType)}`);
+    }
+    
+    if (params.length > 0) {
+        url += params.join('&');
+    }
+    
+    window.location.href = url;
+}
+
+function clearFilters() {
+    window.location.href = '{% url "marketplace" %}';
+}
+
+function filterAnalysesByType(type) {
+    const analysisCards = document.querySelectorAll('.package-card');
+    
+    analysisCards.forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update count
+    const visibleCount = document.querySelectorAll('.package-card[style="display: block"]').length;
+    document.getElementById('analysesCount').textContent = visibleCount;
+}
+</script>
+
+{% endblock %}

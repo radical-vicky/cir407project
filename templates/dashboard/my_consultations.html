@@ -1,0 +1,1653 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Consultations - Cons-App{% endblock %}
+
+{% block content %}
+<section class="py-8" style="background: linear-gradient(135deg, #0c0e14, #131722);">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4" style="margin-top: 8rem; color: #f0b90b;">My Consultations</h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                Manage your scheduled sessions and track your consultation history
+            </p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="dashboard-grid mb-8">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3 class="dashboard-card-title">Scheduled Sessions</h3>
+                    <div class="crypto-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ scheduled_count }}</div>
+                <p class="text-gray-400">Upcoming consultations</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3 class="dashboard-card-title">Completed</h3>
+                    <div class="crypto-icon" style="background: #03a66d;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="stat-value" style="color: #03a66d;">{{ completed_count }}</div>
+                <p class="text-gray-400">Past consultations</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3 class="dashboard-card-title">Total Invested</h3>
+                    <div class="crypto-icon" style="background: #017aff;">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value" style="color: #017aff;">${{ total_invested|default:"0.00" }}</div>
+                <p class="text-gray-400">In consultation services</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h3 class="dashboard-card-title">Next Session</h3>
+                    <div class="crypto-icon" style="background: #f0b90b;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                {% if next_consultation %}
+                <div class="stat-value" style="font-size: 1.5rem; color: #f0b90b;">
+                    {{ next_consultation.scheduled_date|date:"M j" }}
+                </div>
+                <p class="text-gray-400">{{ next_consultation.scheduled_date|time:"g:i A" }}</p>
+                {% else %}
+                <div class="stat-value" style="font-size: 1.5rem; color: #848e9c;">None</div>
+                <p class="text-gray-400">No upcoming sessions</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="dashboard-card mb-8">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="upcoming">
+                    <i class="fas fa-clock"></i>Upcoming Sessions
+                </button>
+                <button class="tab-btn" data-tab="completed">
+                    <i class="fas fa-check-circle"></i>Completed
+                </button>
+                <button class="tab-btn" data-tab="cancelled">
+                    <i class="fas fa-times-circle"></i>Cancelled
+                </button>
+            </div>
+
+            <!-- Upcoming Sessions Tab -->
+            <div id="upcoming-tab" class="tab-content active">
+                {% if upcoming_consultations %}
+                <div class="consultation-rows">
+                    {% for consultation in upcoming_consultations %}
+                    <div class="consultation-row" data-consultation-id="{{ consultation.id }}">
+                        <div class="row-main">
+                            <div class="row-info">
+                                <div class="consultation-badge">
+                                    <span class="badge level-{{ consultation.level }}">{{ consultation.get_level_display }}</span>
+                                    <span class="badge price">${{ consultation.price }}</span>
+                                </div>
+                                <h3 class="consultation-title">{{ consultation.title }}</h3>
+                                <div class="consultation-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ consultation.scheduled_date|date:"M j, Y" }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        {{ consultation.scheduled_date|time:"g:i A" }}
+                                    </span>
+                                    <span class="meta-item">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        {{ consultation.duration_minutes }} min
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row-status">
+                                <div class="status-indicator status-scheduled">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="countdown" data-date="{{ consultation.scheduled_date|date:'c' }}">
+                                        {{ consultation.meeting_status }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row-actions">
+                                {% if consultation.can_join_meeting %}
+                                <a href="{{ consultation.join_url }}" target="_blank" class="btn btn-success btn-sm">
+                                    <i class="fas fa-video"></i> Join
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'consultation_chat' consultation.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-comments"></i> Chat
+                                </a>
+                                <button class="btn btn-outline btn-sm reschedule-btn" data-consultation-id="{{ consultation.id }}">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
+                                <button class="btn btn-outline btn-sm cancel-btn" data-consultation-id="{{ consultation.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Expandable Details -->
+                        <div class="row-details">
+                            <div class="details-grid">
+                                <div class="detail-section">
+                                    <h4>Video Consultation</h4>
+                                    {% if consultation.meeting_link %}
+                                    <div class="meeting-info">
+                                        <div class="info-row">
+                                            <span>Platform:</span>
+                                            <strong>{{ consultation.get_meeting_platform_display }}</strong>
+                                        </div>
+                                        {% if consultation.meeting_id %}
+                                        <div class="info-row">
+                                            <span>Meeting ID:</span>
+                                            <code>{{ consultation.meeting_id }}</code>
+                                        </div>
+                                        {% endif %}
+                                        <div class="meeting-actions">
+                                            <a href="{{ consultation.join_url }}" target="_blank" class="btn btn-success">
+                                                <i class="fas fa-video"></i> Join Meeting
+                                            </a>
+                                            <button class="btn btn-outline copy-link-btn" data-link="{{ consultation.join_url }}">
+                                                <i class="fas fa-copy"></i> Copy Link
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <p class="text-gray-400">Meeting details being generated...</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="detail-section">
+                                    <h4>Preparation Checklist</h4>
+                                    <div class="checklist">
+                                        {% for item in consultation.get_preparation_checklist %}
+                                        <label class="checklist-item">
+                                            <input type="checkbox" class="checklist-checkbox">
+                                            <span class="checkmark"></span>
+                                            {{ item }}
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3 class="empty-title">No Upcoming Sessions</h3>
+                    <p class="empty-description">You don't have any scheduled consultations yet.</p>
+                    <a href="{% url 'book_consultation' %}" class="btn btn-primary mt-4">
+                        <i class="fas fa-calendar-check"></i> Book Your First Consultation
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Completed Sessions Tab -->
+            <div id="completed-tab" class="tab-content">
+                {% if completed_consultations %}
+                <div class="consultation-rows">
+                    {% for consultation in completed_consultations %}
+                    <div class="consultation-row completed">
+                        <div class="row-main">
+                            <div class="row-info">
+                                <div class="consultation-badge">
+                                    <span class="badge level-{{ consultation.level }}">{{ consultation.get_level_display }}</span>
+                                    <span class="badge price">${{ consultation.price }}</span>
+                                    <span class="badge completed-badge">Completed</span>
+                                </div>
+                                <h3 class="consultation-title">{{ consultation.title }}</h3>
+                                <div class="consultation-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ consultation.scheduled_date|date:"M j, Y" }}
+                                    </span>
+                                    {% if consultation.actual_duration %}
+                                    <span class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        {{ consultation.actual_duration }} min actual
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row-status">
+                                <div class="status-indicator status-completed">
+                                    <i class="fas fa-check-circle"></i>
+                                    Completed
+                                </div>
+                            </div>
+                            <div class="row-actions">
+                                <a href="{% url 'consultation_chat' consultation.id %}" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-comments"></i> View Chat
+                                </a>
+                                {% if not consultation.rating %}
+                                <button class="btn btn-primary btn-sm rate-btn" data-consultation-id="{{ consultation.id }}">
+                                    <i class="fas fa-star"></i> Rate
+                                </button>
+                                {% endif %}
+                                <a href="{% url 'book_consultation' %}" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-redo"></i> Book Again
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Expandable Details for Completed -->
+                        <div class="row-details">
+                            <div class="details-grid">
+                                {% if consultation.feedback %}
+                                <div class="detail-section">
+                                    <h4>Session Notes</h4>
+                                    <p class="feedback-content">{{ consultation.feedback }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="detail-section">
+                                    <h4>Session Summary</h4>
+                                    <div class="summary-grid">
+                                        <div class="summary-item">
+                                            <span class="summary-label">Scheduled Duration</span>
+                                            <span class="summary-value">{{ consultation.duration_minutes }} min</span>
+                                        </div>
+                                        {% if consultation.actual_duration %}
+                                        <div class="summary-item">
+                                            <span class="summary-label">Actual Duration</span>
+                                            <span class="summary-value">{{ consultation.actual_duration }} min</span>
+                                        </div>
+                                        {% endif %}
+                                        <div class="summary-item">
+                                            <span class="summary-label">Platform</span>
+                                            <span class="summary-value">{{ consultation.get_meeting_platform_display }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if consultation.rating %}
+                                <div class="detail-section">
+                                    <h4>Your Rating</h4>
+                                    <div class="rating-display">
+                                        <div class="stars">
+                                            {% for i in "12345" %}
+                                            <i class="fas fa-star{% if forloop.counter > consultation.rating %}-half-alt{% endif %}" 
+                                               style="color: {% if forloop.counter <= consultation.rating %}#f0b90b{% else %}#6b7280{% endif %};"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="rating-text">{{ consultation.rating }}/5</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="empty-title">No Completed Sessions</h3>
+                    <p class="empty-description">Your completed consultations will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Cancelled Sessions Tab -->
+            <div id="cancelled-tab" class="tab-content">
+                {% if cancelled_consultations %}
+                <div class="consultation-rows">
+                    {% for consultation in cancelled_consultations %}
+                    <div class="consultation-row cancelled">
+                        <div class="row-main">
+                            <div class="row-info">
+                                <div class="consultation-badge">
+                                    <span class="badge level-{{ consultation.level }}">{{ consultation.get_level_display }}</span>
+                                    <span class="badge price">${{ consultation.price }}</span>
+                                    <span class="badge cancelled-badge">Cancelled</span>
+                                </div>
+                                <h3 class="consultation-title">{{ consultation.title }}</h3>
+                                <div class="consultation-meta">
+                                    <span class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ consultation.scheduled_date|date:"M j, Y" }}
+                                    </span>
+                                    <span class="meta-item status-{{ consultation.payment_status }}">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        {{ consultation.get_payment_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row-status">
+                                <div class="status-indicator status-cancelled">
+                                    <i class="fas fa-times-circle"></i>
+                                    Cancelled
+                                </div>
+                            </div>
+                            <div class="row-actions">
+                                <a href="{% url 'book_consultation' %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-calendar-check"></i> Rebook
+                                </a>
+                                {% if consultation.payment_status != 'refunded' %}
+                                <button class="btn btn-outline btn-sm request-refund-btn" data-consultation-id="{{ consultation.id }}">
+                                    <i class="fas fa-undo"></i> Refund
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <h3 class="empty-title">No Cancelled Sessions</h3>
+                    <p class="empty-description">You haven't cancelled any consultations.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3 class="dashboard-card-title mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{% url 'book_consultation' %}" class="btn btn-primary w-full justify-center">
+                        <i class="fas fa-calendar-plus"></i> Book New Consultation
+                    </a>
+                    <a href="{% url 'marketplace' %}" class="btn btn-outline w-full justify-center">
+                        <i class="fas fa-store"></i> Browse Market Analysis
+                    </a>
+                    <a href="{% url 'wallet' %}" class="btn btn-outline w-full justify-center">
+                        <i class="fas fa-wallet"></i> Manage Wallet
+                    </a>
+                </div>
+            </div>
+
+            <!-- Next Session Countdown -->
+            {% if next_consultation %}
+            <div class="dashboard-card">
+                <h3 class="dashboard-card-title mb-4">Next Session Countdown</h3>
+                <div class="countdown-timer" id="mainCountdown" data-date="{{ next_consultation.scheduled_date|date:'c' }}">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdown-days">00</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdown-hours">00</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="countdown-minutes">00</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                </div>
+                <p class="text-center text-gray-400 mt-4">
+                    <strong>{{ next_consultation.title }}</strong><br>
+                    {{ next_consultation.scheduled_date|date:"F j, Y" }} at {{ next_consultation.scheduled_date|time:"g:i A" }}
+                </p>
+                {% if next_consultation.can_join_meeting %}
+                <div class="text-center mt-4">
+                    <a href="{{ next_consultation.join_url }}" target="_blank" class="btn btn-success">
+                        <i class="fas fa-video"></i> Join Meeting Now
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Modals -->
+<!-- Reschedule Modal -->
+<div id="rescheduleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Reschedule Consultation</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="rescheduleForm">
+                <input type="hidden" id="rescheduleConsultationId">
+                <div class="form-group">
+                    <label for="newDate">Select New Date & Time</label>
+                    <input type="datetime-local" id="newDate" class="form-input" required min="{% now 'Y-m-d\\TH:i' %}">
+                </div>
+                <div class="form-group">
+                    <label for="rescheduleReason">Reason for Rescheduling (Optional)</label>
+                    <textarea id="rescheduleReason" class="form-input" rows="3" placeholder="Let us know why you need to reschedule..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancelReschedule">Cancel</button>
+            <button class="btn btn-primary" id="confirmReschedule">Reschedule Session</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Cancel Consultation</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="text-gray-400 mb-4">Are you sure you want to cancel this consultation?</p>
+            <form id="cancelForm">
+                <input type="hidden" id="cancelConsultationId">
+                <div class="form-group">
+                    <label for="cancelReason">Reason for Cancellation</label>
+                    <select id="cancelReason" class="form-input" required>
+                        <option value="">Select a reason...</option>
+                        <option value="schedule_conflict">Schedule Conflict</option>
+                        <option value="no_longer_needed">No Longer Needed</option>
+                        <option value="found_alternative">Found Alternative</option>
+                        <option value="technical_issues">Technical Issues</option>
+                        <option value="emergency">Emergency</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cancelDetails">Additional Details (Optional)</label>
+                    <textarea id="cancelDetails" class="form-input" rows="3" placeholder="Provide more context..."></textarea>
+                </div>
+                <div class="refund-option">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="requestRefund" checked>
+                        <span class="checkmark"></span>
+                        Request refund to wallet balance
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="dontCancel">Don't Cancel</button>
+            <button class="btn btn-danger" id="confirmCancel">Cancel Session</button>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Modal -->
+<div id="ratingModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Rate Your Consultation</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="ratingForm">
+                <input type="hidden" id="ratingConsultationId">
+                <div class="form-group">
+                    <label>Your Rating</label>
+                    <div class="star-rating-large">
+                        {% for i in "12345" %}
+                        <i class="far fa-star rating-star-large" data-rating="{{ forloop.counter }}"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ratingFeedback">Feedback (Optional)</label>
+                    <textarea id="ratingFeedback" class="form-input" rows="4" placeholder="Share your experience..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancelRating">Cancel</button>
+            <button class="btn btn-primary" id="submitRating">Submit Rating</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --binance-dark: #0c0e14;
+        --binance-card: #1e2329;
+        --binance-card-light: #2b3139;
+        --binance-border: #32353e;
+        --binance-hover: #2b3139;
+        --binance-yellow: #f0b90b;
+        --binance-green: #03a66d;
+        --binance-red: #cf304a;
+        --binance-blue: #017aff;
+        --text-primary: #eaecef;
+        --text-secondary: #848e9c;
+        --text-tertiary: #6b7280;
+        --transition: all 0.3s ease;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--binance-dark);
+        color: var(--text-primary);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+
+    /* Button Styles */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: 1px solid;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: var(--transition);
+        background: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: var(--binance-yellow);
+        border-color: var(--binance-yellow);
+        color: #000;
+    }
+
+    .btn-primary:hover {
+        background: #f8d33a;
+        border-color: #f8d33a;
+    }
+
+    .btn-success {
+        background: var(--binance-green);
+        border-color: var(--binance-green);
+        color: #fff;
+    }
+
+    .btn-success:hover {
+        background: #04c782;
+        border-color: #04c782;
+    }
+
+    .btn-outline {
+        border-color: var(--binance-border);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--binance-yellow);
+        color: var(--binance-yellow);
+    }
+
+    .btn-danger {
+        background: var(--binance-red);
+        border-color: var(--binance-red);
+        color: #fff;
+    }
+
+    .btn-danger:hover {
+        background: #d93a54;
+        border-color: #d93a54;
+    }
+
+    .btn-sm {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+    }
+
+    /* Consultation Row Layout */
+    .consultation-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .consultation-row {
+        background: var(--binance-card);
+        border: 1px solid var(--binance-border);
+        border-radius: 8px;
+        transition: var(--transition);
+        overflow: hidden;
+    }
+
+    .consultation-row:hover {
+        border-color: var(--binance-yellow);
+        transform: translateY(-1px);
+    }
+
+    .consultation-row.expanded .row-details {
+        display: block;
+    }
+
+    .row-main {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        cursor: pointer;
+        gap: 16px;
+    }
+
+    .row-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .consultation-badge {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge.level-beginner { background: rgba(3, 166, 109, 0.2); color: var(--binance-green); }
+    .badge.level-intermediate { background: rgba(240, 185, 11, 0.2); color: var(--binance-yellow); }
+    .badge.level-advanced { background: rgba(1, 122, 255, 0.2); color: var(--binance-blue); }
+    .badge.level-expert { background: rgba(207, 48, 74, 0.2); color: var(--binance-red); }
+    .badge.price { background: rgba(132, 142, 156, 0.2); color: var(--text-secondary); }
+    .badge.completed-badge { background: rgba(3, 166, 109, 0.2); color: var(--binance-green); }
+    .badge.cancelled-badge { background: rgba(207, 48, 74, 0.2); color: var(--binance-red); }
+
+    .consultation-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .consultation-meta {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .row-status {
+        min-width: 150px;
+        text-align: center;
+    }
+
+    .status-indicator {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-scheduled { background: rgba(240, 185, 11, 0.2); color: var(--binance-yellow); }
+    .status-completed { background: rgba(3, 166, 109, 0.2); color: var(--binance-green); }
+    .status-cancelled { background: rgba(207, 48, 74, 0.2); color: var(--binance-red); }
+
+    .row-actions {
+        display: flex;
+        gap: 8px;
+        min-width: 200px;
+        justify-content: flex-end;
+    }
+
+    /* Expandable Details */
+    .row-details {
+        display: none;
+        padding: 20px;
+        border-top: 1px solid var(--binance-border);
+        background: var(--binance-card-light);
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .detail-section h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+
+    .meeting-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--binance-border);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .meeting-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .checklist {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .checklist-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+    .checklist-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .checklist-checkbox {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 2px solid var(--binance-border);
+        background: var(--binance-dark);
+        cursor: pointer;
+    }
+
+    .checklist-checkbox:checked {
+        background: var(--binance-yellow);
+        border-color: var(--binance-yellow);
+    }
+
+    .checkmark {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--binance-border);
+        border-radius: 4px;
+        background: var(--binance-dark);
+        position: relative;
+        transition: var(--transition);
+    }
+
+    .checklist-checkbox:checked + .checkmark {
+        background: var(--binance-yellow);
+        border-color: var(--binance-yellow);
+    }
+
+    .checklist-checkbox:checked + .checkmark::after {
+        content: "✓";
+        color: #000;
+        font-weight: bold;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.75rem;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+    }
+
+    .summary-item {
+        text-align: center;
+        padding: 12px;
+        background: var(--binance-dark);
+        border-radius: 8px;
+        border: 1px solid var(--binance-border);
+    }
+
+    .summary-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .summary-value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stars {
+        display: flex;
+        gap: 2px;
+    }
+
+    .rating-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    /* Star Rating in Modal */
+    .star-rating-large {
+        display: flex;
+        gap: 8px;
+        font-size: 2rem;
+    }
+
+    .rating-star-large {
+        color: var(--text-tertiary);
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .rating-star-large:hover,
+    .rating-star-large.active {
+        color: var(--binance-yellow);
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--binance-card);
+        border-radius: 8px;
+        border: 1px solid var(--binance-border);
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px;
+        border-bottom: 1px solid var(--binance-border);
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    .modal-close:hover {
+        background: var(--binance-hover);
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding: 24px;
+        border-top: 1px solid var(--binance-border);
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        background: var(--binance-dark);
+        border: 1px solid var(--binance-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--binance-yellow);
+    }
+
+    .refund-option {
+        margin-top: 16px;
+        padding: 16px;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 8px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        display: none;
+    }
+
+    /* Countdown Timer */
+    .countdown-timer {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 24px;
+        background: var(--binance-card-light);
+        border-radius: 8px;
+        border: 1px solid var(--binance-border);
+    }
+
+    .countdown-item {
+        text-align: center;
+    }
+
+    .countdown-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--binance-yellow);
+        line-height: 1;
+    }
+
+    .countdown-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .dashboard-card {
+        background: var(--binance-card);
+        border: 1px solid var(--binance-border);
+        border-radius: 8px;
+        padding: 24px;
+        transition: var(--transition);
+    }
+
+    .dashboard-card:hover {
+        border-color: var(--binance-yellow);
+    }
+
+    .dashboard-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .dashboard-card-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .crypto-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--binance-yellow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #000;
+        font-size: 1.125rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    /* Tab Styles */
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .tabs-header {
+        display: flex;
+        border-bottom: 1px solid var(--binance-border);
+        padding: 0 24px;
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 16px 24px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tab-btn.active {
+        color: var(--binance-yellow);
+    }
+
+    .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--binance-yellow);
+    }
+
+    /* Empty States */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--binance-card-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .empty-description {
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Utility Classes */
+    .text-center { text-align: center; }
+    .text-gray-400 { color: var(--text-secondary); }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-8 { margin-bottom: 32px; }
+    .mt-4 { margin-top: 16px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .w-full { width: 100%; }
+    .justify-center { justify-content: center; }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .row-main {
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .row-status {
+            min-width: auto;
+        }
+        
+        .row-actions {
+            min-width: auto;
+            justify-content: flex-start;
+        }
+        
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .consultation-meta {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .row-main {
+            padding: 16px;
+        }
+        
+        .row-details {
+            padding: 16px;
+        }
+        
+        .meeting-actions {
+            flex-direction: column;
+        }
+
+        .tabs-header {
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .tab-btn {
+            padding: 16px;
+            border-bottom: 1px solid var(--binance-border);
+        }
+
+        .tab-btn.active::after {
+            display: none;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 16px;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .consultation-badge {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .row-actions {
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .countdown-timer {
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .countdown-item {
+            flex: 1;
+            min-width: 70px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Your existing JavaScript code remains the same
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // Row expansion functionality
+        document.querySelectorAll('.consultation-row .row-main').forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Don't expand if clicking on buttons
+                if (e.target.closest('button') || e.target.closest('a')) {
+                    return;
+                }
+                
+                const consultationRow = this.closest('.consultation-row');
+                consultationRow.classList.toggle('expanded');
+            });
+        });
+
+        // Countdown functionality
+        function updateCountdowns() {
+            const countdowns = document.querySelectorAll('.countdown');
+            
+            countdowns.forEach(countdown => {
+                const targetDate = new Date(countdown.getAttribute('data-date'));
+                const now = new Date();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    countdown.textContent = 'Session started';
+                    countdown.style.color = '#03a66d';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                if (days > 0) {
+                    countdown.textContent = `${days}d ${hours}h ${minutes}m`;
+                } else if (hours > 0) {
+                    countdown.textContent = `${hours}h ${minutes}m`;
+                } else {
+                    countdown.textContent = `${minutes}m`;
+                    countdown.style.color = '#cf304a';
+                }
+            });
+
+            // Update main countdown timer
+            const mainCountdown = document.getElementById('mainCountdown');
+            if (mainCountdown) {
+                const targetDate = new Date(mainCountdown.getAttribute('data-date'));
+                const now = new Date();
+                const diff = targetDate - now;
+
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                    document.getElementById('countdown-days').textContent = days.toString().padStart(2, '0');
+                    document.getElementById('countdown-hours').textContent = hours.toString().padStart(2, '0');
+                    document.getElementById('countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+                }
+            }
+        }
+
+        // Update countdowns every minute
+        setInterval(updateCountdowns, 60000);
+        updateCountdowns();
+
+        // Modal functionality
+        const modals = {
+            reschedule: document.getElementById('rescheduleModal'),
+            cancel: document.getElementById('cancelModal'),
+            rating: document.getElementById('ratingModal')
+        };
+
+        function openModal(modalName, consultationId) {
+            modals[modalName].classList.add('active');
+            document.getElementById(modalName + 'ConsultationId').value = consultationId;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalName) {
+            modals[modalName].classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Reschedule buttons
+        document.querySelectorAll('.reschedule-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const consultationId = this.getAttribute('data-consultation-id');
+                openModal('reschedule', consultationId);
+            });
+        });
+
+        // Cancel buttons
+        document.querySelectorAll('.cancel-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const consultationId = this.getAttribute('data-consultation-id');
+                openModal('cancel', consultationId);
+            });
+        });
+
+        // Rate buttons
+        document.querySelectorAll('.rate-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const consultationId = this.getAttribute('data-consultation-id');
+                openModal('rating', consultationId);
+            });
+        });
+
+        // Request refund buttons
+        document.querySelectorAll('.request-refund-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const consultationId = this.getAttribute('data-consultation-id');
+                if (confirm('Are you sure you want to request a refund for this consultation?')) {
+                    // AJAX call to request refund
+                    fetch(`/consultation/${consultationId}/refund/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Refund request submitted successfully!');
+                            location.reload();
+                        } else {
+                            alert('Failed to submit refund request: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while submitting refund request.');
+                    });
+                }
+            });
+        });
+
+        // Copy meeting link
+        document.querySelectorAll('.copy-link-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const link = this.getAttribute('data-link');
+                navigator.clipboard.writeText(link).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                }).catch(() => {
+                    alert('Failed to copy link. Please copy it manually.');
+                });
+            });
+        });
+
+        // Star rating in modal
+        document.querySelectorAll('.rating-star-large').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                const stars = this.parentElement.querySelectorAll('.rating-star-large');
+                
+                stars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas', 'active');
+                    } else {
+                        s.classList.remove('fas', 'active');
+                        s.classList.add('far');
+                    }
+                });
+                
+                this.closest('.modal-body').setAttribute('data-current-rating', rating);
+            });
+        });
+
+        // Modal close functionality
+        document.querySelectorAll('.modal-close, #cancelReschedule, #dontCancel, #cancelRating').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Form submissions
+        document.getElementById('confirmReschedule').addEventListener('click', function() {
+            const consultationId = document.getElementById('rescheduleConsultationId').value;
+            const newDate = document.getElementById('newDate').value;
+            const reason = document.getElementById('rescheduleReason').value;
+
+            if (!newDate) {
+                alert('Please select a new date and time.');
+                return;
+            }
+
+            // AJAX call to reschedule
+            fetch(`/consultation/${consultationId}/reschedule/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    new_date: newDate,
+                    reason: reason
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Reschedule request submitted successfully!');
+                    closeModal('reschedule');
+                    location.reload();
+                } else {
+                    alert('Failed to reschedule: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while rescheduling.');
+            });
+        });
+
+        document.getElementById('confirmCancel').addEventListener('click', function() {
+            const consultationId = document.getElementById('cancelConsultationId').value;
+            const reason = document.getElementById('cancelReason').value;
+            const details = document.getElementById('cancelDetails').value;
+            const requestRefund = document.getElementById('requestRefund').checked;
+
+            if (!reason) {
+                alert('Please select a cancellation reason.');
+                return;
+            }
+
+            // AJAX call to cancel
+            fetch(`/consultation/${consultationId}/cancel/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    reason: reason,
+                    details: details,
+                    request_refund: requestRefund
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Consultation cancelled successfully!');
+                    closeModal('cancel');
+                    location.reload();
+                } else {
+                    alert('Failed to cancel: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while cancelling.');
+            });
+        });
+
+        document.getElementById('submitRating').addEventListener('click', function() {
+            const consultationId = document.getElementById('ratingConsultationId').value;
+            const rating = document.querySelector('.modal-body').getAttribute('data-current-rating');
+            const feedback = document.getElementById('ratingFeedback').value;
+
+            if (!rating) {
+                alert('Please select a rating.');
+                return;
+            }
+
+            // AJAX call to submit rating
+            fetch(`/consultation/${consultationId}/rate/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    rating: rating,
+                    feedback: feedback
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Rating submitted successfully!');
+                    closeModal('rating');
+                    location.reload();
+                } else {
+                    alert('Failed to submit rating: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting rating.');
+            });
+        });
+
+        // Checklist functionality
+        document.querySelectorAll('.checklist-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                e.stopPropagation();
+                const consultationId = this.closest('.consultation-row').dataset.consultationId;
+                const itemIndex = Array.from(this.closest('.checklist').children).indexOf(this.closest('.checklist-item'));
+                
+                // Save checklist progress
+                const key = `consultation_checklist_${consultationId}`;
+                let progress = JSON.parse(localStorage.getItem(key)) || {};
+                progress[itemIndex] = this.checked;
+                localStorage.setItem(key, JSON.stringify(progress));
+            });
+
+            // Load saved checklist progress
+            const consultationId = checkbox.closest('.consultation-row').dataset.consultationId;
+            const itemIndex = Array.from(checkbox.closest('.checklist').children).indexOf(checkbox.closest('.checklist-item'));
+            const key = `consultation_checklist_${consultationId}`;
+            const progress = JSON.parse(localStorage.getItem(key)) || {};
+            
+            if (progress[itemIndex]) {
+                checkbox.checked = true;
+            }
+        });
+
+        // Utility function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

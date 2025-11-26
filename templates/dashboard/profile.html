@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - CryptoConsult</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --binance-yellow: #f0b90b;
+            --binance-dark: #0c0e14;
+            --binance-card: #161a25;
+            --binance-border: #2b3139;
+            --binance-hover: #1e2329;
+            --text-primary: #eaecef;
+            --text-secondary: #848e9c;
+            --success-color: #03a66d;
+            --danger-color: #cf304a;
+            --primary-color: #3b82f6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--binance-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header - Binance Style */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(22, 26, 37, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--binance-border);
+            z-index: 1000;
+            padding: 0.75rem 0;
+            transition: all 0.3s ease;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        /* Logo - Binance Style */
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--binance-yellow);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        /* Navigation - Binance Style */
+        .desktop-nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        @media (max-width: 1023px) {
+            .desktop-nav {
+                display: none;
+            }
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--binance-yellow);
+            background: var(--binance-hover);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            color: var(--binance-yellow);
+            background: var(--binance-hover);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+        }
+
+        /* Buttons - Binance Style */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--binance-yellow);
+            border-color: var(--binance-yellow);
+        }
+
+        .btn-outline:hover {
+            background: var(--binance-yellow);
+            color: #000000;
+        }
+
+        .btn-primary {
+            background: var(--binance-yellow);
+            color: #000000;
+            border-color: var(--binance-yellow);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #e0ac0a;
+            border-color: #e0ac0a;
+            box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 0.25rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 1023px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu-btn span {
+            width: 1.5rem;
+            height: 0.125rem;
+            background: var(--text-primary);
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--binance-card);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+            border-left: 1px solid var(--binance-border);
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--binance-border);
+            background: var(--binance-card);
+            position: sticky;
+            top: 0;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .mobile-nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 1rem;
+            border-bottom: 1px solid var(--binance-border);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-nav-link:hover {
+            color: var(--binance-yellow);
+            background: var(--binance-hover);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .close-btn:hover {
+            background: var(--binance-hover);
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 70px;
+            min-height: calc(100vh - 20rem);
+        }
+
+        /* User Dropdown */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--binance-card);
+            border: 1px solid var(--binance-border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            min-width: 220px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 1001;
+            margin-top: 0.5rem;
+        }
+
+        .user-menu.active {
+            display: block;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .user-menu-item:hover {
+            background: var(--binance-hover);
+            color: var(--binance-yellow);
+        }
+
+        /* Wallet Balance */
+        .wallet-balance-mini {
+            background: rgba(240, 185, 11, 0.1);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .wallet-balance-mini .text-primary {
+            color: var(--binance-yellow) !important;
+        }
+
+        /* Overlay */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Profile Page Specific Styles */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: var(--binance-card);
+            border-radius: 12px;
+            border: 1px solid var(--binance-border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--binance-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #000;
+            border: 3px solid var(--binance-yellow);
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--binance-yellow);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Profile Content Layout */
+        .profile-content {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar Navigation */
+        .profile-sidebar {
+            background: var(--binance-card);
+            border-radius: 12px;
+            border: 1px solid var(--binance-border);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+
+        .nav-tabs {
+            list-style: none;
+        }
+
+        .nav-tab {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-tab a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-tab a:hover {
+            background: var(--binance-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-tab a.active {
+            background: var(--binance-hover);
+            color: var(--binance-yellow);
+            border-left: 3px solid var(--binance-yellow);
+        }
+
+        /* Main Content Area */
+        .profile-main {
+            background: var(--binance-card);
+            border-radius: 12px;
+            border: 1px solid var(--binance-border);
+            padding: 2rem;
+            min-height: 600px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--binance-border);
+            padding-bottom: 0.75rem;
+        }
+
+        /* Account Level Section */
+        .account-level {
+            background: var(--binance-dark);
+            border-radius: 8px;
+            border: 1px solid var(--binance-border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .level-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .level-badge {
+            background: var(--binance-yellow);
+            color: #000;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .level-progress {
+            height: 8px;
+            background: var(--binance-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .level-progress-bar {
+            height: 100%;
+            background: var(--binance-yellow);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .level-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .level-stat {
+            text-align: center;
+        }
+
+        .level-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--binance-yellow);
+            margin-bottom: 0.25rem;
+        }
+
+        .level-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        /* Security Badges */
+        .security-badges {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .security-badge {
+            background: var(--binance-dark);
+            border: 1px solid var(--binance-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .security-badge:hover {
+            border-color: var(--binance-yellow);
+        }
+
+        .badge-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .badge-icon.verified {
+            background: rgba(3, 166, 109, 0.1);
+            color: var(--success-color);
+            border: 2px solid rgba(3, 166, 109, 0.3);
+        }
+
+        .badge-icon.pending {
+            background: rgba(240, 185, 11, 0.1);
+            color: var(--binance-yellow);
+            border: 2px solid rgba(240, 185, 11, 0.3);
+        }
+
+        .badge-icon.unverified {
+            background: rgba(207, 48, 74, 0.1);
+            color: var(--danger-color);
+            border: 2px solid rgba(207, 48, 74, 0.3);
+        }
+
+        .badge-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .badge-status {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge-status.verified {
+            color: var(--success-color);
+        }
+
+        .badge-status.pending {
+            color: var(--binance-yellow);
+        }
+
+        .badge-status.unverified {
+            color: var(--danger-color);
+        }
+
+        /* Form Styles */
+        .profile-form {
+            margin-top: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            background: var(--binance-dark);
+            border: 1px solid var(--binance-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--binance-yellow);
+            box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* File Upload */
+        .file-upload {
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-input {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--binance-dark);
+            border: 1px dashed var(--binance-border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--binance-yellow);
+            color: var(--binance-yellow);
+        }
+
+        .file-preview {
+            margin-top: 1rem;
+        }
+
+        .file-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 1px solid var(--binance-border);
+        }
+
+        /* API Section */
+        .api-section {
+            background: var(--binance-dark);
+            border-radius: 8px;
+            border: 1px solid var(--binance-border);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .api-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .api-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .api-key {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--binance-card);
+            border: 1px solid var(--binance-border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .api-key-text {
+            font-family: monospace;
+            color: var(--text-secondary);
+        }
+
+        .api-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Payment Form */
+        .payment-form {
+            margin-top: 2rem;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: rgba(3, 166, 109, 0.1);
+            border-color: rgba(3, 166, 109, 0.3);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(207, 48, 74, 0.1);
+            border-color: rgba(207, 48, 74, 0.3);
+            color: var(--danger-color);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .security-badges {
+                grid-template-columns: 1fr;
+            }
+            
+            .level-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 1rem 0.5rem;
+            }
+            
+            .profile-header,
+            .profile-main,
+            .profile-sidebar {
+                padding: 1.5rem 1rem;
+            }
+            
+            .level-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .api-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Additional animations for messages */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Ensure form controls have proper spacing */
+        .form-control {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Error list styling */
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0 0;
+            color: var(--danger-color);
+            font-size: 0.8rem;
+        }
+
+        .errorlist div {
+            margin: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .errorlist div::before {
+            content: "⚠";
+            font-size: 0.7rem;
+        }
+
+        /* Form error styling */
+        .form-control.error {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 2px rgba(207, 48, 74, 0.1);
+        }
+
+        /* Form error text */
+        .form-error {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-error span {
+            display: block;
+            margin: 0.1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="{% url 'base' %}" class="logo" style="font-size: 19px;">
+                    <i class="fas fa-chart-line"></i> CryptoConsult
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="desktop-nav">
+                    {% if user.is_authenticated %}
+                        <!-- Authenticated User Navigation -->
+                        <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{% url 'portfolio' %}" class="nav-link {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}">
+                            <i class="fas fa-chart-pie"></i> Portfolio
+                        </a>
+                        <a href="{% url 'marketplace' %}" class="nav-link {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">
+                            <i class="fas fa-store"></i> Marketplace
+                        </a>
+                        <a href="{% url 'purchase_analysis' %}" class="nav-link {% if request.resolver_match.url_name == 'purchase_analysis' %}active{% endif %}">
+                            <i class="fas fa-analytics"></i> My Analyses
+                        </a>
+                        <a href="{% url 'my_consultations' %}" class="nav-link {% if request.resolver_match.url_name == 'my_consultations' %}active{% endif %}">
+                            <i class="fas fa-calendar-check"></i> My Consultations
+                        </a>
+                        <a href="{% url 'wallet' %}" class="nav-link {% if request.resolver_match.url_name == 'wallet' %}active{% endif %}">
+                            <i class="fas fa-wallet"></i> Wallet
+                        </a>
+                        
+                        <!-- User Dropdown -->
+                        <div class="user-dropdown">
+                            <button class="nav-link" id="userMenuBtn" style="background: none; border: none; cursor: pointer;">
+                                <i class="fas fa-user"></i> {{ user.username }}
+                            </button>
+                            <div class="user-menu" id="userMenu">
+                                <a href="{% url 'profile' %}" class="user-menu-item">
+                                    <i class="fas fa-user-circle"></i> My Profile
+                                </a>
+                                <a href="{% url 'portfolio' %}" class="user-menu-item">
+                                    <i class="fas fa-chart-pie"></i> Portfolio
+                                </a>
+                                <a href="{% url 'purchase_analysis' %}" class="user-menu-item">
+                                    <i class="fas fa-analytics"></i> My Analyses
+                                </a>
+                                <a href="{% url 'marketplace' %}" class="user-menu-item">
+                                    <i class="fas fa-store"></i> Marketplace
+                                </a>
+                                <a href="{% url 'wallet' %}" class="user-menu-item">
+                                    <i class="fas fa-wallet"></i> Wallet
+                                </a>
+                                <div style="border-top: 1px solid var(--binance-border); margin: 0.5rem 0;"></div>
+                                <a href="{% url 'account_logout' %}" class="user-menu-item" style="color: var(--danger-color);">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Guest Navigation -->
+                        <a href="#features" class="nav-link">
+                            <i class="fas fa-star"></i> Features
+                        </a>
+                        <a href="#pricing" class="nav-link">
+                            <i class="fas fa-tag"></i> Pricing
+                        </a>
+                        <a href="#testimonials" class="nav-link">
+                            <i class="fas fa-quote-left"></i> Success Stories
+                        </a>
+                    {% endif %}
+                </nav>
+
+                <!-- Desktop Auth Buttons -->
+                <div class="desktop-nav">
+                    {% if user.is_authenticated %}
+                        {% if user_wallet %}
+                        <div class="wallet-balance-mini">
+                            <i class="fas fa-wallet text-primary"></i>
+                            <span class="text-primary font-semibold">${{ user_wallet.balance|default:"0.00" }}</span>
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'account_logout' %}" class="btn btn-outline">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-outline">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary">
+                            <i class="fas fa-rocket"></i> Get Started
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="{% url 'base' %}" class="logo">CryptoConsult</a>
+            <button class="close-btn" id="closeMenuBtn">&times;</button>
+        </div>
+        <nav class="mobile-nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="mobile-nav-link">📊 Dashboard</a>
+                <a href="{% url 'portfolio' %}" class="mobile-nav-link">📈 Portfolio</a>
+                <a href="{% url 'marketplace' %}" class="mobile-nav-link">🛒 Marketplace</a>
+                <a href="{% url 'purchase_analysis' %}" class="mobile-nav-link">📊 My Analyses</a>
+                <a href="{% url 'my_consultations' %}" class="mobile-nav-link">📅 My Consultations</a>
+                <a href="{% url 'wallet' %}" class="mobile-nav-link">💰 Wallet</a>
+                <a href="{% url 'profile' %}" class="mobile-nav-link">👤 Profile</a>
+                {% if user_wallet %}
+                <div class="mobile-nav-link" style="color: var(--binance-yellow);">
+                    💰 Balance: ${{ user_wallet.balance|default:"0.00" }}
+                </div>
+                {% endif %}
+                <a href="{% url 'account_logout' %}" class="mobile-nav-link" style="color: var(--danger-color);">🚪 Logout</a>
+            {% else %}
+                <a href="#features" class="mobile-nav-link">⭐ Features</a>
+                <a href="#pricing" class="mobile-nav-link">💰 Pricing</a>
+                <a href="#testimonials" class="mobile-nav-link">💬 Success Stories</a>
+                <div class="mt-8 space-y-4">
+                    <a href="{% url 'account_login' %}" class="btn btn-outline block text-center">Sign In</a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-primary block text-center">Get Started</a>
+                </div>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <div class="profile-container">
+            <!-- Header Section -->
+            <div class="profile-header">
+                <div class="profile-header-content">
+                    <div class="profile-avatar">
+                        {% if user_profile.profile_picture %}
+                            <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                        <p class="profile-email">{{ user.email }}</p>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">${{ user_wallet.balance|default:"0.00" }}</span>
+                                <span class="stat-label">Balance</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">{{ user_wallet.mpesa_verified }}</span>
+                                <span class="stat-label">Verified</span>
+                            </div>
+                            <div class="stat-item">
+                                <!--<span class="stat-value">{{ verified|length }}</span>
+                                <span class="stat-label">Account Level</span>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="profile-content">
+                <!-- Sidebar Navigation -->
+                <div class="profile-sidebar">
+                    <ul class="nav-tabs">
+                        <li class="nav-tab">
+                            <a href="#" class="active" data-tab="overview">
+                                <i class="fas fa-chart-line"></i>
+                                Overview
+                            </a>
+                        </li>
+                        <li class="nav-tab">
+                            <a href="#" data-tab="personal-info">
+                                <i class="fas fa-user-cog"></i>
+                                Personal Info
+                            </a>
+                        </li>
+                        <li class="nav-tab">
+                            <a href="#" data-tab="security">
+                                <i class="fas fa-shield-alt"></i>
+                                Security
+                            </a>
+                        </li>
+                        <li class="nav-tab">
+                            <a href="#" data-tab="payment-methods">
+                                <i class="fas fa-wallet"></i>
+                                Payment Methods
+                            </a>
+                        </li>
+                        <li class="nav-tab">
+                            <a href="#" data-tab="api-management">
+                                <i class="fas fa-key"></i>
+                                API Management
+                            </a>
+                        </li>
+                        <!--<li class="nav-tab">
+                            <a href="{% url 'dashboard' %}">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                        </li>-->
+                    </ul>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="profile-main">
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Overview Tab -->
+                    <div id="overview" class="tab-content active">
+                        <h2 class="section-title">Account Overview</h2>
+                        
+                        <!-- Account Level -->
+                        <div class="account-level">
+                            <div class="level-header">
+                                <div class="level-title">Account Level 2</div>
+                                <div class="level-badge">Verified</div>
+                            </div>
+                            <div class="level-progress">
+                                <div class="level-progress-bar" style="width: 75%"></div>
+                            </div>
+                            <div class="level-stats">
+                                <div class="level-stat">
+                                    <span class="level-stat-value">75%</span>
+                                    <span class="level-stat-label">Verification Progress</span>
+                                </div>
+                                <div class="level-stat">
+                                    <span class="level-stat-value">$50,000</span>
+                                    <span class="level-stat-label">Daily Limit</span>
+                                </div>
+                                <div class="level-stat">
+                                    <span class="level-stat-value">Unlimited</span>
+                                    <span class="level-stat-label">Withdrawal Limit</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Badges -->
+                        <h3 class="section-title" style="font-size: 1.25rem; margin-top: 2rem;">Security Status</h3>
+                        <div class="security-badges">
+                            <div class="security-badge verified">
+                                <div class="badge-icon verified">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="badge-title">Email Verification</div>
+                                <div class="badge-status verified">Verified</div>
+                            </div>
+                            <div class="security-badge verified">
+                                <div class="badge-icon verified">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="badge-title">Phone Verification</div>
+                                <div class="badge-status verified">Verified</div>
+                            </div>
+                            <div class="security-badge pending">
+                                <div class="badge-icon pending">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div class="badge-title">ID Verification</div>
+                                <div class="badge-status pending">Pending</div>
+                            </div>
+                            <div class="security-badge unverified">
+                                <div class="badge-icon unverified">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="badge-title">2FA</div>
+                                <div class="badge-status unverified">Not Enabled</div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <h3 class="section-title" style="font-size: 1.25rem; margin-top: 2rem;">Quick Actions</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <a href="{% url 'marketplace' %}" class="btn btn-outline">
+                                <i class="fas fa-store"></i>
+                                Browse Marketplace
+                            </a>
+                            <a href="{% url 'deposit_funds' %}" class="btn btn-outline">
+                                <i class="fas fa-wallet"></i>
+                                Deposit Funds
+                            </a>
+                            <button class="btn btn-outline" onclick="showTab('security')">
+                                <i class="fas fa-shield-alt"></i>
+                                Enable 2FA
+                            </button>
+                            <a href="{% url 'my_consultations' %}" class="btn btn-outline">
+                                <i class="fas fa-calendar-check"></i>
+                                Your Crypto-Consultations
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Personal Info Tab -->
+                    <div id="personal-info" class="tab-content">
+                        <h2 class="section-title">Personal Information</h2>
+                        <form method="POST" enctype="multipart/form-data" class="profile-form">
+                            {% csrf_token %}
+                            
+                            <!-- Display form errors -->
+                            {% if user_form.errors or profile_form.errors %}
+                            <div class="form-group full-width">
+                                <div class="alert alert-error">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Please correct the errors below.
+                                    {% for field in user_form %}
+                                        {% if field.errors %}
+                                            <div class="form-error">
+                                                <strong>{{ field.label }}:</strong> 
+                                                {% for error in field.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for field in profile_form %}
+                                        {% if field.errors %}
+                                            <div class="form-error">
+                                                <strong>{{ field.label }}:</strong> 
+                                                {% for error in field.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="form-grid">
+                                <!-- Username Field -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ user_form.username.id_for_label }}">
+                                        Username
+                                    </label>
+                                    <input type="text" 
+                                           name="{{ user_form.username.name }}"
+                                           id="{{ user_form.username.id_for_label }}"
+                                           class="form-control {% if user_form.username.errors %}error{% endif %}"
+                                           value="{{ user_form.username.value|default:user.username }}"
+                                           required
+                                           placeholder="Enter your username">
+                                    {% if user_form.username.errors %}
+                                        <div class="errorlist">
+                                            {% for error in user_form.username.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Email Field -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ user_form.email.id_for_label }}">
+                                        Email Address
+                                    </label>
+                                    <input type="email" 
+                                           name="{{ user_form.email.name }}"
+                                           id="{{ user_form.email.id_for_label }}"
+                                           class="form-control {% if user_form.email.errors %}error{% endif %}"
+                                           value="{{ user_form.email.value|default:user.email }}"
+                                           required
+                                           placeholder="Enter your email address">
+                                    {% if user_form.email.errors %}
+                                        <div class="errorlist">
+                                            {% for error in user_form.email.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- First Name Field -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ user_form.first_name.id_for_label }}">
+                                        First Name
+                                    </label>
+                                    <input type="text" 
+                                           name="{{ user_form.first_name.name }}"
+                                           id="{{ user_form.first_name.id_for_label }}"
+                                           class="form-control"
+                                           value="{{ user_form.first_name.value|default:user.first_name }}"
+                                           placeholder="Enter your first name">
+                                </div>
+                                
+                                <!-- Last Name Field -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ user_form.last_name.id_for_label }}">
+                                        Last Name
+                                    </label>
+                                    <input type="text" 
+                                           name="{{ user_form.last_name.name }}"
+                                           id="{{ user_form.last_name.id_for_label }}"
+                                           class="form-control"
+                                           value="{{ user_form.last_name.value|default:user.last_name }}"
+                                           placeholder="Enter your last name">
+                                </div>
+                                
+                                <!-- Phone Number Field -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ profile_form.phone_number.id_for_label }}">
+                                        Phone Number
+                                    </label>
+                                    <input type="tel" 
+                                           name="{{ profile_form.phone_number.name }}"
+                                           id="{{ profile_form.phone_number.id_for_label }}"
+                                           class="form-control {% if profile_form.phone_number.errors %}error{% endif %}"
+                                           value="{{ profile_form.phone_number.value|default:user_profile.phone_number }}"
+                                           placeholder="+254 XXX XXX XXX">
+                                    {% if profile_form.phone_number.errors %}
+                                        <div class="errorlist">
+                                            {% for error in profile_form.phone_number.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Date of Birth Field -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ profile_form.date_of_birth.id_for_label }}">
+                                        Date of Birth
+                                    </label>
+                                    <input type="date" 
+                                           name="{{ profile_form.date_of_birth.name }}"
+                                           id="{{ profile_form.date_of_birth.id_for_label }}"
+                                           class="form-control"
+                                           value="{{ profile_form.date_of_birth.value|default:user_profile.date_of_birth|date:'Y-m-d' }}">
+                                </div>
+                                
+                                <!-- Address Field -->
+                                <div class="form-group full-width">
+                                    <label class="form-label" for="{{ profile_form.address.id_for_label }}">
+                                        Address
+                                    </label>
+                                    <textarea name="{{ profile_form.address.name }}"
+                                              id="{{ profile_form.address.id_for_label }}"
+                                              class="form-control"
+                                              rows="3"
+                                              placeholder="Enter your address">{{ profile_form.address.value|default:user_profile.address }}</textarea>
+                                </div>
+                                
+                                <!-- Profile Picture Field -->
+                                <div class="form-group full-width">
+                                    <label class="form-label">Profile Picture</label>
+                                    <div class="file-upload">
+                                        <input type="file" 
+                                               name="{{ profile_form.profile_picture.name }}"
+                                               class="file-upload-input" 
+                                               id="{{ profile_form.profile_picture.id_for_label }}"
+                                               accept="image/*">
+                                        <label for="{{ profile_form.profile_picture.id_for_label }}" class="file-upload-label">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            Choose Profile Picture
+                                        </label>
+                                    </div>
+                                    <div class="file-preview" id="file-preview">
+                                        {% if user_profile.profile_picture %}
+                                            <img src="{{ user_profile.profile_picture.url }}" alt="Current profile picture">
+                                        {% endif %}
+                                    </div>
+                                    {% if profile_form.profile_picture.errors %}
+                                        <div class="errorlist">
+                                            {% for error in profile_form.profile_picture.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Security Tab -->
+                    <div id="security" class="tab-content">
+                        <h2 class="section-title">Security Settings</h2>
+                        
+                        <div class="security-badges">
+                            <div class="security-badge verified">
+                                <div class="badge-icon verified">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <div class="badge-title">Password</div>
+                                <div class="badge-status verified">Last changed 30 days ago</div>
+                                <a href="{% url 'account_change_password' %}" class="btn btn-secondary" style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    Change
+                                </a>
+                            </div>
+                            
+                            <div class="security-badge unverified">
+                                <div class="badge-icon unverified">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="badge-title">2FA</div>
+                                <div class="badge-status unverified">Not Enabled</div>
+                                <button class="btn btn-primary" style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    Enable
+                                </button>
+                            </div>
+                            
+                            <div class="security-badge verified">
+                                <div class="badge-icon verified">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="badge-title">Email Verification</div>
+                                <div class="badge-status verified">Verified</div>
+                            </div>
+                            
+                            <div class="security-badge verified">
+                                <div class="badge-icon verified">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="badge-title">SMS Verification</div>
+                                <div class="badge-status verified">Verified</div>
+                            </div>
+                        </div>
+
+                        <div class="api-section">
+                            <div class="api-header">
+                                <div class="api-title">Login Activity</div>
+                                <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    View All
+                                </button>
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                Last login: {{ user.last_login|date:"M d, Y H:i" }} from {{ request.META.REMOTE_ADDR }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods Tab -->
+                    <div id="payment-methods" class="tab-content">
+                        <h2 class="section-title">Payment Methods</h2>
+                        
+                        <div class="security-badges">
+                            <div class="security-badge verified">
+                                <div class="badge-icon verified">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="badge-title">Wallet Balance</div>
+                                <div class="badge-status verified">${{ user_wallet.balance|default:"0.00" }}</div>
+                                <a href="{% url 'wallet' %}" class="btn btn-secondary" style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    Manage
+                                </a>
+                            </div>
+                            
+                            <div class="security-badge {% if user_wallet.mpesa_number %}verified{% else %}unverified{% endif %}">
+                                <div class="badge-icon {% if user_wallet.mpesa_number %}verified{% else %}unverified{% endif %}">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="badge-title">M-Pesa</div>
+                                <div class="badge-status {% if user_wallet.mpesa_number %}verified{% else %}unverified{% endif %}">
+                                    {% if user_wallet.mpesa_number %}{{ user_wallet.mpesa_number }}{% else %}Not Set{% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="security-badge {% if user_wallet.paypal_email %}verified{% else %}unverified{% endif %}">
+                                <div class="badge-icon {% if user_wallet.paypal_email %}verified{% else %}unverified{% endif %}">
+                                    <i class="fab fa-paypal"></i>
+                                </div>
+                                <div class="badge-title">PayPal</div>
+                                <div class="badge-status {% if user_wallet.paypal_email %}verified{% else %}unverified{% endif %}">
+                                    {% if user_wallet.paypal_email %}{{ user_wallet.paypal_email }}{% else %}Not Set{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" class="payment-form" style="margin-top: 2rem;">
+                            {% csrf_token %}
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">M-Pesa Number</label>
+                                    <input type="text" 
+                                           name="mpesa_number" 
+                                           class="form-control" 
+                                           placeholder="+254 XXX XXX XXX"
+                                           value="{{ user_wallet.mpesa_number|default:'' }}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">PayPal Email</label>
+                                    <input type="email" 
+                                           name="paypal_email" 
+                                           class="form-control" 
+                                           placeholder="your-email@example.com"
+                                           value="{{ user_wallet.paypal_email|default:'' }}">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Update Payment Methods
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- API Management Tab -->
+                    <div id="api-management" class="tab-content">
+                        <h2 class="section-title">API Management</h2>
+                        
+                        <div class="api-section">
+                            <div class="api-header">
+                                <div class="api-title">Trading API Key</div>
+                                <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                    Create New API
+                                </button>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                                Use API keys to integrate with trading bots and applications.
+                            </p>
+                            
+                            <div class="api-key">
+                                <div class="api-key-text">ck_***************a1b2c3</div>
+                                <div class="api-actions">
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; color: var(--danger-color);">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="api-section">
+                            <div class="api-header">
+                                <div class="api-title">API Permissions</div>
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-check" style="color: var(--success-color);"></i>
+                                    <span>Read account information</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-check" style="color: var(--success-color);"></i>
+                                    <span>Place buy/sell orders</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-times" style="color: var(--danger-color);"></i>
+                                    <span>Withdraw funds (disabled)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mobile Menu Functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        closeMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileOverlay.addEventListener('click', toggleMobileMenu);
+
+        // User Dropdown Functionality
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenu = document.getElementById('userMenu');
+
+        if (userMenuBtn && userMenu) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                    userMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // Global function to switch tabs
+        function showTab(tabName) {
+            const navTabs = document.querySelectorAll('.nav-tab a');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Remove active class from all tabs and contents
+            navTabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to target tab
+            const targetTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            }
+        }
+
+        // Tab functionality
+        const navTabs = document.querySelectorAll('.nav-tab a[data-tab]');
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all tabs and contents
+                navTabs.forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const targetTab = this.getAttribute('data-tab');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // File upload preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('{{ profile_form.profile_picture.id_for_label }}');
+            const filePreview = document.getElementById('file-preview');
+            
+            if (fileInput && filePreview) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            filePreview.innerHTML = `<img src="${e.target.result}" alt="Profile preview">`;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Form submission loading state
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                        submitBtn.disabled = true;
+                        
+                        // Re-enable button after 5 seconds in case of error
+                        setTimeout(() => {
+                            submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                            submitBtn.disabled = false;
+                        }, 5000);
+                    }
+                });
+            });
+        });
+
+        // Function to show success message
+        function showSuccessMessage(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success';
+            alertDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            alertDiv.style.animation = 'slideIn 0.3s ease';
+            
+            const mainContent = document.querySelector('.profile-main');
+            mainContent.insertBefore(alertDiv, mainContent.firstChild);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Function to show error message
+        function showErrorMessage(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-error';
+            alertDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            alertDiv.style.animation = 'slideIn 0.3s ease';
+            
+            const mainContent = document.querySelector('.profile-main');
+            mainContent.insertBefore(alertDiv, mainContent.firstChild);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

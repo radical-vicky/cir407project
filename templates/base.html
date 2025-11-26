@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    
+    <!-- Internal CSS with Binance Design System -->
+    <style>
+        /* Binance Design System */
+        :root {
+            /* Binance Color Palette */
+            --binance-yellow: #f0b90b;
+            --binance-black: #0b0e11;
+            --binance-dark-gray: #1e2026;
+            --binance-gray: #2b3139;
+            --binance-light-gray: #474d57;
+            --binance-card: #161a25;
+            --binance-border: #2b3139;
+            --binance-hover: #1e2329;
+            
+            /* Text Colors */
+            --text-primary: #eaecef;
+            --text-secondary: #848e9c;
+            --text-tertiary: #6c757d;
+            
+            /* Status Colors */
+            --success-color: #03a66d;
+            --error-color: #cf304a;
+            --warning-color: #f0b90b;
+            --info-color: #3b82f6;
+            
+            /* Effects */
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-radius: 4px;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--binance-black);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header - Binance Style */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--binance-dark-gray);
+            border-bottom: 1px solid var(--binance-border);
+            z-index: 1000;
+            height: 64px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        /* Logo - Binance Style */
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--binance-yellow);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Navigation - Binance Style */
+        .desktop-nav {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        @media (max-width: 1023px) {
+            .desktop-nav {
+                display: none;
+            }
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--binance-yellow);
+            background: var(--binance-hover);
+        }
+
+        .nav-link.active {
+            color: var(--binance-yellow);
+            background: var(--binance-hover);
+        }
+
+        /* Buttons - Binance Style */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--binance-yellow);
+            border-color: var(--binance-yellow);
+        }
+
+        .btn-outline:hover {
+            background: var(--binance-yellow);
+            color: #000000;
+        }
+
+        .btn-primary {
+            background: var(--binance-yellow);
+            color: #000000;
+            border-color: var(--binance-yellow);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #e0ac0a;
+            border-color: #e0ac0a;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 0.25rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 1023px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .mobile-menu-btn span {
+            width: 1.5rem;
+            height: 0.125rem;
+            background: var(--text-primary);
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            height: 100vh;
+            background: var(--binance-dark-gray);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            border-left: 1px solid var(--binance-border);
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--binance-border);
+            background: var(--binance-dark-gray);
+            height: 64px;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .mobile-nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .mobile-nav-link:hover {
+            color: var(--binance-yellow);
+            background: var(--binance-hover);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+        }
+
+        .close-btn:hover {
+            background: var(--binance-hover);
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 64px;
+            min-height: calc(100vh - 20rem);
+        }
+
+        /* User Dropdown */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--binance-dark-gray);
+            border: 1px solid var(--binance-border);
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1001;
+            margin-top: 0.5rem;
+        }
+
+        .user-menu.active {
+            display: block;
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .user-menu-item:hover {
+            background: var(--binance-hover);
+            color: var(--binance-yellow);
+        }
+
+        /* Wallet Balance */
+        .wallet-balance-mini {
+            background: rgba(240, 185, 11, 0.1);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .wallet-balance-mini .text-primary {
+            color: var(--binance-yellow) !important;
+        }
+
+        /* Overlay */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .mobile-overlay.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(11, 14, 17, 0.9), rgba(30, 32, 38, 0.95));
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cards - Binance Style */
+        .binance-card {
+            background: var(--binance-dark-gray);
+            border: 1px solid var(--binance-border);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .feature-card {
+            background: var(--binance-dark-gray);
+            border: 1px solid var(--binance-border);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            border-color: var(--binance-yellow);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--binance-yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: #000000;
+        }
+
+        /* Consultation Cards */
+        .consultation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .consultation-card {
+            background: var(--binance-dark-gray);
+            border: 1px solid var(--binance-border);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .consultation-card:hover {
+            border-color: var(--binance-yellow);
+            transform: translateY(-2px);
+        }
+
+        .consultation-level {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .level-beginner {
+            background: rgba(3, 166, 109, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(3, 166, 109, 0.3);
+        }
+
+        .level-intermediate {
+            background: rgba(240, 185, 11, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+        }
+
+        .level-advanced {
+            background: rgba(207, 48, 74, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(207, 48, 74, 0.3);
+        }
+
+        .consultation-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .icon-beginner {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+
+        .icon-intermediate {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+        }
+
+        .icon-advanced {
+            background: linear-gradient(135deg, var(--error-color), #dc2626);
+        }
+
+        .consultation-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .consultation-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .consultation-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .consultation-features li {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .consultation-features li::before {
+            content: "✓";
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .consultation-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--binance-yellow);
+            margin-bottom: 1rem;
+        }
+
+        /* Balance Check */
+        .balance-check {
+            background: rgba(240, 185, 11, 0.1);
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .balance-label {
+            color: var(--text-secondary);
+        }
+
+        .balance-amount {
+            font-weight: 600;
+            color: var(--binance-yellow);
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .section-link {
+            color: var(--binance-yellow);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .section-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--binance-dark-gray);
+            border-top: 1px solid var(--binance-border);
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--binance-yellow);
+        }
+
+        /* Form Elements - Binance Style */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--binance-black);
+            border: 1px solid var(--binance-border);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--binance-yellow);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-primary { color: var(--binance-yellow); }
+        .text-white { color: var(--text-primary); }
+        .text-gray-400 { color: var(--text-secondary); }
+        
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+
+        .hidden { display: none; }
+        .block { display: block; }
+        .flex { display: flex; }
+
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+
+        /* Grid Systems */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+            
+            .features-grid,
+            .consultation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .hero-content {
+                padding: 0 1rem;
+            }
+            
+            .text-4xl {
+                font-size: 1.875rem;
+            }
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--binance-yellow);
+            color: #000000;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 999;
+            border: 1px solid var(--binance-border);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+        }
+
+        .back-to-top:hover {
+            background: #e0ac0a;
+            transform: translateY(-2px);
+        }
+
+        /* Messages */
+        .messages-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            border: 1px solid;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .alert-success {
+            background: rgba(3, 166, 109, 0.1);
+            border-color: rgba(3, 166, 109, 0.3);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(207, 48, 74, 0.1);
+            border-color: rgba(207, 48, 74, 0.3);
+            color: var(--error-color);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+    
+    <title>{% block title %}CryptoConsult - Professional Crypto Analysis{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/usd-coin.png' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {% block extra_head %}
+    {% endblock %}
+</head>
+    
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="{% url 'base' %}" class="logo">
+                    <i class="fas fa-chart-line"></i> CryptoConsult
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="desktop-nav">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{% url 'book_consultation' %}" class="nav-link {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}">
+                            <i class="fas fa-chart-pie"></i> Trade Consultations
+                        </a>
+                    {% else %}
+                        <a href="#features" class="nav-link">Features</a>
+                        <a href="#how-it-works" class="nav-link">How It Works</a>
+                    {% endif %}
+                    
+                    <a href="{% url 'marketplace' %}" class="nav-link {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">
+                        <i class="fas fa-store"></i> Marketplace
+                    </a>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- User Dropdown -->
+                        <div class="user-dropdown">
+                            <button class="nav-link" id="userMenuBtn" style="background-color: #161a25; border-color: #f0b90b; border-radius: 4px; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; ">
+                                <i class="">More Options </i>
+                            </button>
+                            <div class="user-menu" id="userMenu">
+                                <a href="{% url 'profile' %}" class="user-menu-item">
+                                    <i class="fas fa-user-circle"></i> Profile
+                                </a>
+                                <a href="{% url 'portfolio' %}" class="user-menu-item">
+                                    <i class="fas fa-chart-pie"></i> Your Portfolio
+                                </a>
+
+                                <a href="{% url 'my_consultations' %}" class="user-menu-item">
+                                    <i class="fas fa-spinner"></i>Already Booked Sessions
+                                </a>
+                                <a href="{% url 'market_insights' %}" class="user-menu-item">
+                                    <i class="fas fa-book"></i> Market Insights
+                                </a>
+                                <div style="border-top: 1px solid var(--binance-border); margin: 0.5rem 0;"></div>
+                                <a href="{% url 'account_logout' %}" class="user-menu-item" style="color: var(--error-color);">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if user_wallet %}
+                        <div class="wallet-balance-mini" style="margin-right: 4px;">
+                            <i class="fas fa-wallet text-primary"></i>
+                            <span class="text-primary font-semibold">${{ user_wallet.balance|default:"0.00" }}</span>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </nav>
+
+                <!-- Auth Buttons -->
+                <div class="desktop-nav" >
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'account_logout' %}" class="btn btn-outline" >
+                            <i class="fas fa-sign-out-alt" ></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-outline">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary">
+                            <i class=""></i> Get Started
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="/" class="logo">CryptoConsult</a>
+            <button class="close-btn" id="closeMenuBtn">&times;</button>
+        </div>
+        <nav class="mobile-nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="mobile-nav-link">📊 Dashboard</a>
+                <a href="{% url 'portfolio' %}" class="mobile-nav-link">📈 Portfolio</a>
+            {% else %}
+                <a href="#features" class="mobile-nav-link">⭐ Features</a>
+                <a href="#how-it-works" class="mobile-nav-link">🔄 How It Works</a>
+            {% endif %}
+            
+            <a href="{% url 'marketplace' %}" class="mobile-nav-link">🛒 Marketplace</a>
+            <a href="{% url 'marketplace' %}" class="mobile-nav-link "> <span class="fas fa-book-open"></span>Crypto-Consultations</a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="mobile-nav-link"> <span class="fas fa-user-circle"></span>Profile</a>
+                {% if user_wallet %}
+                <div class="mobile-nav-link" style="color: var(--binance-yellow);">
+                    💰 Balance: ${{ user_wallet.balance|default:"0.00" }}
+                </div>
+                {% endif %}
+                <a href="{% url 'account_logout' %}" class="mobile-nav-link" style="color: var(--error-color);">🚪 Logout</a>
+            {% else %}
+                <div class="mt-8 space-y-4">
+                    <a href="{% url 'account_login' %}" class="btn btn-outline block text-center">Sign In</a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-primary block text-center">Get Started</a>
+                </div>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}">
+            <div class="flex items-center justify-between">
+                <span>{{ message }}</span>
+                <button class="close-message" style="background: none; border: none; color: inherit; cursor: pointer; margin-left: 1rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        <!-- Default Content -->
+        <section class="hero">
+            {% if hero_video %}
+            <div class="video-background">
+                <video autoplay muted loop playsinline>
+                    <source src="{{ hero_video.url }}" type="video/mp4">
+                </video>
+            </div>
+            {% endif %}
+            
+            <div class="video-overlay"></div>
+            
+            <div class="hero-content">
+                <h1 class="text-4xl font-bold mb-6">
+                    Trade Smarter with <span class="text-primary">Professional Crypto Analysis</span>
+                </h1>
+                <p class="text-xl text-gray-400 mb-8">
+                    Get access to expertly analyzed cryptocurrency insights and make informed trading decisions with confidence.
+                </p>
+                <div class="space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'marketplace' %}" class="btn btn-primary btn-large">
+                            <i class="fas fa-store"></i> Browse Marketplace
+                        </a>
+                    {% else %}
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary btn-large">
+                            <i class="fas fa-arrow-right"></i> Get started
+                        </a>
+                        <a href="#features" class="btn btn-outline btn-large">
+                            <i class="fas fa-info-circle"></i> Learn More
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-12">
+            <div class="container">
+                <h2 class="text-3xl font-bold text-center mb-4">Why Choose CryptoConsult?</h2>
+                <p class="text-xl text-gray-400 text-center mb-12">
+                    Professional analysis tools for successful crypto trading
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-analytics"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Technical Analysis</h3>
+                        <p class="text-gray-400">
+                            Detailed chart analysis with professional indicators and pattern recognition.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Risk Assessment</h3>
+                        <p class="text-gray-400">
+                            Comprehensive risk evaluation with clear stop-loss recommendations.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Integrated Wallet</h3>
+                        <p class="text-gray-400">
+                            Secure wallet with PayPal and M-Pesa support for global accessibility.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works" class="py-12" style="background: var(--binance-dark-gray);">
+            <div class="container">
+                <h2 class="text-3xl font-bold text-center mb-4">How It Works</h2>
+                <p class="text-xl text-gray-400 text-center mb-12">
+                    Simple steps to start making informed trading decisions
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">1</div>
+                        <h3 class="text-xl font-bold mb-4">Sign Up</h3>
+                        <p class="text-gray-400">
+                            Create your account and explore our platform features.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">2</div>
+                        <h3 class="text-xl font-bold mb-4">Browse Analysis</h3>
+                        <p class="text-gray-400">
+                            Explore premium crypto analysis reports in our marketplace.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card text-center">
+                        <div class="feature-icon mx-auto">3</div>
+                        <h3 class="text-xl font-bold mb-4">Trade Smart</h3>
+                        <p class="text-gray-400">
+                            Follow expert recommendations and execute trades with confidence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Consultation Section -->
+        <section class="py-12">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Expert Training Consultations</h2>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'book_consultation' %}" class="section-link">
+                        View All Sessions
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="consultation-grid">
+                    {% for package in consultation_packages %}
+                    <div class="consultation-card">
+                        <div class="consultation-level level-{{ package.level }}">{{ package.get_level_display }}</div>
+                        <div class="consultation-icon icon-{{ package.level }}">
+                            <i class="{{ package.icon_class }}"></i>
+                        </div>
+                        <h3 class="consultation-title">{{ package.title }}</h3>
+                        <p class="consultation-description">{{ package.description }}</p>
+                        <ul class="consultation-features">
+                            {% for feature in package.features %}
+                            <li>{{ feature }}</li>
+                            {% endfor %}
+                        </ul>
+                        <div class="consultation-price">${{ package.price }}</div>
+                        
+                        {% if user.is_authenticated %}
+                            <div class="balance-check {% if user_wallet.balance >= package.price %}balance-sufficient{% else %}balance-insufficient{% endif %}">
+                                <div class="balance-info">
+                                    <span class="balance-label">Your Balance:</span>
+                                    <span class="balance-amount">${{ user_wallet.balance|default:"0.00" }}</span>
+                                </div>
+                            </div>
+                            
+                            <form method="post" action="{% url 'book_consultation' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="package_id" value="{{ package.id }}">
+                                <button type="submit" class="btn btn-primary w-full" {% if user_wallet.balance < package.price %}disabled{% endif %}>
+                                    {% if user_wallet.balance >= package.price %}
+                                        Book Session
+                                    {% else %}
+                                        Insufficient Balance
+                                    {% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'account_signup' %}" class="btn btn-primary w-full">
+                                Sign Up to Book
+                            </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="/" class="logo text-2xl mb-4 inline-block">CryptoConsult</a>
+                    <p class="text-gray-400 mb-4">
+                        Professional cryptocurrency analysis for successful trading.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-xl font-semibold mb-6">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'marketplace' %}">Marketplace</a></li>
+                        <li><a href="{% url 'portfolio' %}">Portfolio</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white text-xl font-semibold mb-6">Information</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Risk Disclosure</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        closeMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileOverlay.addEventListener('click', toggleMobileMenu);
+
+        // User Dropdown
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenu = document.getElementById('userMenu');
+
+        if (userMenuBtn && userMenu) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                    userMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // Back to Top
+        window.addEventListener('scroll', () => {
+            const backToTop = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Close Messages
+        document.querySelectorAll('.close-message').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.alert').style.display = 'none';
+            });
+        });
+
+        // Auto-hide messages
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.display = 'none';
+            });
+        }, 5000);
+    </script>
+
+    {% block extra_scripts %}
+    {% endblock %}
+</body>
+</html>

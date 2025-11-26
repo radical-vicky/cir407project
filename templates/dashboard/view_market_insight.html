@@ -1,0 +1,742 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Market Insights - CryptoConsult{% endblock %}
+
+{% block extra_head %}
+<style>
+:root {
+    --binance-yellow: #F0B90B;
+    --binance-green: #03A66D;
+    --binance-red: #CF304A;
+    --binance-blue: #017AFF;
+    --binance-dark: #0c0e14;
+    --binance-card: #161a25;
+    --binance-border: #2b3139;
+    --binance-hover: #1e2329;
+    --text-primary: #EAECEF;
+    --text-secondary: #848e9c;
+    --text-muted: #6c757d;
+    --accent-orange: #F0B90B;
+    --accent-purple: #7367F0;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.market-insights-page {
+    max-width: 1400px;
+    margin: 80px auto 2rem;
+    padding: 0 1rem;
+    min-height: calc(100vh - 80px);
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--binance-border);
+    text-align: center;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--binance-yellow);
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Layout */
+.insights-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+}
+
+/* Filters Card */
+.filters-card {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.filter-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filter-title i {
+    color: var(--binance-yellow);
+}
+
+.filter-group {
+    margin-bottom: 1.5rem;
+}
+
+.filter-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.filter-select, .filter-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.filter-select:focus, .filter-input:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: var(--binance-yellow);
+    color: #000000;
+    border-color: var(--binance-yellow);
+}
+
+.btn-primary:hover {
+    background: #e0ac0a;
+    border-color: #e0ac0a;
+    color: #000000;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--binance-yellow);
+    border-color: var(--binance-yellow);
+}
+
+.btn-outline:hover {
+    background: var(--binance-yellow);
+    color: #000000;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.btn-w-full {
+    width: 100%;
+}
+
+/* Insights Grid */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.insight-card {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.insight-card:hover {
+    border-color: var(--binance-yellow);
+    background: var(--binance-hover);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+}
+
+.insight-card.featured {
+    border-color: var(--binance-yellow);
+    background: linear-gradient(135deg, var(--binance-card) 0%, var(--binance-hover) 100%);
+}
+
+.featured-badge {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    padding: 0.5rem 1rem;
+    border-radius: 0 8px 0 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--binance-yellow);
+    color: #000000;
+}
+
+.insight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.insight-crypto {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.insight-symbol {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: var(--binance-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    border: 1px solid var(--binance-border);
+}
+
+.insight-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.insight-type {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+    border-radius: 1rem;
+    text-transform: uppercase;
+}
+
+.insight-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.meta-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--binance-dark);
+    border-radius: 6px;
+    border: 1px solid var(--binance-border);
+}
+
+.meta-label {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.meta-value {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.insight-summary {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.insight-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-read {
+    flex: 1;
+    padding: 0.75rem;
+    background: transparent;
+    color: var(--binance-yellow);
+    border: 1px solid var(--binance-yellow);
+    border-radius: 6px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-read:hover {
+    background: var(--binance-yellow);
+    color: #000000;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Quick Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--binance-dark);
+    border-radius: 6px;
+    border: 1px solid var(--binance-border);
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--binance-yellow);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Featured Insights */
+.featured-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.featured-item {
+    display: block;
+    padding: 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.featured-item:hover {
+    border-color: var(--binance-yellow);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.featured-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--binance-yellow);
+}
+
+.featured-crypto {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--binance-yellow);
+}
+
+.featured-title {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.featured-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Urgency color classes */
+.urgency-normal { color: var(--binance-green); }
+.urgency-important { color: #f97316; }
+.urgency-urgent { color: var(--binance-red); }
+.urgency-critical { color: #8b45ff; }
+
+.bg-urgency-normal { background: rgba(3, 166, 109, 0.1); border: 1px solid rgba(3, 166, 109, 0.2); }
+.bg-urgency-important { background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2); }
+.bg-urgency-urgent { background: rgba(207, 48, 74, 0.1); border: 1px solid rgba(207, 48, 74, 0.2); }
+.bg-urgency-critical { background: rgba(139, 69, 255, 0.1); border: 1px solid rgba(139, 69, 255, 0.2); }
+
+/* Insight type color classes */
+.type-market_overview { color: var(--binance-blue); background: rgba(1, 122, 255, 0.1); border: 1px solid rgba(1, 122, 255, 0.2); }
+.type-price_analysis { color: var(--binance-yellow); background: rgba(240, 185, 11, 0.1); border: 1px solid rgba(240, 185, 11, 0.2); }
+.type-news_impact { color: #8b5cf6; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); }
+.type-regulatory { color: #06b6d4; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); }
+.type-technical { color: var(--binance-green); background: rgba(3, 166, 109, 0.1); border: 1px solid rgba(3, 166, 109, 0.2); }
+.type-fundamental { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .insights-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-card {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .market-insights-page {
+        margin: 70px auto 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .insight-meta {
+        grid-template-columns: 1fr;
+    }
+    
+    .insight-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="market-insights-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Market Insights</h1>
+        <p class="page-subtitle">Stay updated with the latest cryptocurrency market trends, analysis, and news</p>
+    </div>
+
+    <div class="insights-layout">
+        <!-- Main Content -->
+        <div>
+            <!-- Insights Grid -->
+            <div class="insights-grid">
+                {% for insight in market_insights %}
+                <div class="insight-card {% if insight.is_featured %}featured{% endif %}">
+                    {% if insight.is_featured %}
+                    <div class="featured-badge">Featured</div>
+                    {% endif %}
+                    
+                    <div class="insight-header">
+                        <div class="insight-crypto">
+                            <div class="insight-symbol">
+                                {{ insight.symbol|default:insight.cryptocurrency|slice:":3"|upper|default:"MI" }}
+                            </div>
+                            <h3 class="insight-name">{{ insight.cryptocurrency|default:"Market Update" }}</h3>
+                        </div>
+                        <div class="insight-type type-{{ insight.insight_type }}">
+                            {{ insight.get_insight_type_display }}
+                        </div>
+                    </div>
+                    
+                    <div class="insight-meta">
+                        <div class="meta-item bg-urgency-{{ insight.urgency }}">
+                            <div class="meta-label">Urgency</div>
+                            <div class="meta-value urgency-{{ insight.urgency }}">
+                                {{ insight.get_urgency_display }}
+                            </div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Published</div>
+                            <div class="meta-value">{{ insight.published_at|date:"M j, Y" }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Views</div>
+                            <div class="meta-value">{{ insight.views_count }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Status</div>
+                            <div class="meta-value">
+                                {% if insight.verified_by %}
+                                <i class="fas fa-check-circle" style="color: var(--binance-green);"></i> Verified
+                                {% else %}
+                                <i class="fas fa-clock" style="color: #f59e0b;"></i> Unverified
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.75rem; font-weight: 600;">
+                        {{ insight.title }}
+                    </h4>
+                    
+                    <p class="insight-summary">
+                        {{ insight.summary|truncatewords:30 }}
+                    </p>
+                    
+                    <div class="insight-actions">
+                        <a href="{% url 'view_market_insight' insight.id %}" class="btn-read">
+                            <i class="fas fa-book-open"></i> Read Full Insight
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h3>No market insights found</h3>
+                    <p>Try adjusting your filters or check back later for new insights</p>
+                    <a href="{% url 'market_insights' %}" class="btn btn-outline" style="display: inline-flex; width: auto;">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Filters -->
+            <div class="filters-card">
+                <h3 class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </h3>
+                
+                <form method="get" action="{% url 'market_insights' %}">
+                    <div class="filter-group">
+                        <label class="filter-label">Insight Type</label>
+                        <select name="type" class="filter-select">
+                            <option value="">All Types</option>
+                            <option value="market_overview" {% if selected_type == 'market_overview' %}selected{% endif %}>Market Overview</option>
+                            <option value="price_analysis" {% if selected_type == 'price_analysis' %}selected{% endif %}>Price Analysis</option>
+                            <option value="news_impact" {% if selected_type == 'news_impact' %}selected{% endif %}>News Impact</option>
+                            <option value="regulatory" {% if selected_type == 'regulatory' %}selected{% endif %}>Regulatory Update</option>
+                            <option value="technical" {% if selected_type == 'technical' %}selected{% endif %}>Technical Outlook</option>
+                            <option value="fundamental" {% if selected_type == 'fundamental' %}selected{% endif %}>Fundamental Analysis</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Urgency Level</label>
+                        <select name="urgency" class="filter-select">
+                            <option value="">All Levels</option>
+                            <option value="normal" {% if selected_urgency == 'normal' %}selected{% endif %}>Normal</option>
+                            <option value="important" {% if selected_urgency == 'important' %}selected{% endif %}>Important</option>
+                            <option value="urgent" {% if selected_urgency == 'urgent' %}selected{% endif %}>Urgent</option>
+                            <option value="critical" {% if selected_urgency == 'critical' %}selected{% endif %}>Critical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Cryptocurrency</label>
+                        <input type="text" 
+                               name="crypto" 
+                               class="filter-input" 
+                               placeholder="e.g., Bitcoin, ETH"
+                               value="{{ selected_crypto }}">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-w-full">
+                        <i class="fas fa-check"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'market_insights' %}" class="btn btn-outline btn-w-full" style="margin-top: 0.75rem; text-decoration: none; display: flex;">
+                        <i class="fas fa-times"></i> Clear All
+                    </a>
+                </form>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="filters-card">
+                <h3 class="filter-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Quick Stats
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ market_insights|length }}</div>
+                        <div class="stat-label">Total Insights</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            {% with featured_count=market_insights|length %}
+                                {{ featured_count }}
+                            {% endwith %}
+                        </div>
+                        <div class="stat-label">Featured</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            {% with verified_count=market_insights|length %}
+                                {{ verified_count }}
+                            {% endwith %}
+                        </div>
+                        <div class="stat-label">Verified</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ today_insights|default:"0" }}</div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Insights -->
+            {% if featured_insights %}
+            <div class="filters-card">
+                <h3 class="filter-title">
+                    <i class="fas fa-star"></i>
+                    Featured Insights
+                </h3>
+                <div class="featured-insights">
+                    {% for insight in featured_insights %}
+                    <a href="{% url 'view_market_insight' insight.id %}" class="featured-item">
+                        <div class="featured-crypto">{{ insight.cryptocurrency|default:"Market" }}</div>
+                        <div class="featured-title">{{ insight.title|truncatewords:8 }}</div>
+                        <div class="featured-meta">
+                            <span>{{ insight.published_at|date:"M j" }}</span>
+                            <span>{{ insight.views_count }} views</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add interactive hover effects
+    const insightCards = document.querySelectorAll('.insight-card');
+    insightCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0 8px 25px rgba(240, 185, 11, 0.15)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    // Add loading state to filter buttons
+    const filterForm = document.querySelector('form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+
+    // Auto-submit form on filter change (optional)
+    const filterSelects = document.querySelectorAll('.filter-select');
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            // Uncomment the line below to auto-submit on filter change
+            // this.form.submit();
+        });
+    });
+
+    console.log('Market insights page initialized with Binance styling');
+});
+</script>
+{% endblock %}

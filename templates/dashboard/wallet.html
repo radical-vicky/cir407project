@@ -1,0 +1,1050 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Wallet - CryptoConsult{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --binance-yellow: #F0B90B;
+    --binance-green: #03A66D;
+    --binance-red: #CF304A;
+    --binance-blue: #017AFF;
+    --binance-dark: #0c0e14;
+    --binance-card: #161a25;
+    --binance-border: #2b3139;
+    --binance-hover: #1e2329;
+    --text-primary: #EAECEF;
+    --text-secondary: #848e9c;
+    --text-muted: #6c757d;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Wallet Container */
+.wallet-container {
+    max-width: 1000px;
+    margin: 80px auto 2rem;
+    padding: 0 1rem;
+    min-height: calc(100vh - 80px);
+}
+
+/* Header Section */
+.wallet-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--binance-border);
+}
+
+.wallet-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--binance-yellow);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.wallet-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.exchange-rate {
+    background: rgba(240, 185, 11, 0.1);
+    border: 1px solid rgba(240, 185, 11, 0.3);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    color: var(--binance-yellow);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Messages */
+.messages-container {
+    margin-bottom: 2rem;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: rgba(3, 166, 109, 0.1);
+    border-color: rgba(3, 166, 109, 0.3);
+    color: var(--binance-green);
+}
+
+.alert-error {
+    background: rgba(207, 48, 74, 0.1);
+    border-color: rgba(207, 48, 74, 0.3);
+    color: var(--binance-red);
+}
+
+.alert-info {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: var(--binance-blue);
+}
+
+/* Balance Overview */
+.balance-overview {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--binance-border);
+    padding-bottom: 0.75rem;
+}
+
+.balance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.balance-card {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid;
+    transition: var(--transition);
+}
+
+.balance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.balance-card.usd {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.balance-card.kes {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.balance-card.transactions {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.balance-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.balance-value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+}
+
+.balance-card.usd .balance-value { color: var(--binance-blue); }
+.balance-card.kes .balance-value { color: var(--binance-green); }
+.balance-card.transactions .balance-value { color: #a855f7; }
+
+/* Payment Methods Status */
+.payment-methods {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--binance-border);
+}
+
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.payment-method:hover {
+    border-color: var(--binance-yellow);
+    background: var(--binance-hover);
+}
+
+.payment-status {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.status-active {
+    background: var(--binance-green);
+    color: white;
+}
+
+.status-inactive {
+    background: var(--binance-red);
+    color: white;
+}
+
+.payment-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.setup-payment-btn {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Quick Actions */
+.quick-actions {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.action-btn {
+    padding: 1rem 1.5rem;
+    border: 2px solid;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+}
+
+.btn-deposit {
+    background: var(--binance-green);
+    color: white;
+    border-color: var(--binance-green);
+}
+
+.btn-deposit:hover {
+    background: #02b574;
+    border-color: #02b574;
+}
+
+.btn-withdraw {
+    background: var(--binance-blue);
+    color: white;
+    border-color: var(--binance-blue);
+}
+
+.btn-withdraw:hover {
+    background: #0263cc;
+    border-color: #0263cc;
+}
+
+.btn-payment-methods {
+    background: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+}
+
+.btn-payment-methods:hover {
+    background: #7c3aed;
+    border-color: #7c3aed;
+}
+
+.btn-history {
+    background: transparent;
+    color: var(--binance-yellow);
+    border-color: var(--binance-yellow);
+}
+
+.btn-history:hover {
+    background: var(--binance-yellow);
+    color: #000000;
+}
+
+/* Recent Transactions */
+.recent-transactions {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.view-all-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--binance-blue);
+    border: 1px solid var(--binance-blue);
+    border-radius: 6px;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.view-all-btn:hover {
+    background: var(--binance-blue);
+    color: white;
+    text-decoration: none;
+}
+
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.transaction-item:hover {
+    border-color: var(--binance-yellow);
+    background: var(--binance-hover);
+}
+
+.transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.transaction-icon.deposit {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--binance-green);
+}
+
+.transaction-icon.withdraw {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--binance-red);
+}
+
+.transaction-details h4 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.transaction-meta {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.transaction-amount {
+    text-align: right;
+}
+
+.amount {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.amount.deposit { color: var(--binance-green); }
+.amount.withdraw { color: var(--binance-red); }
+
+.amount-kes {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.transaction-status {
+    font-size: 0.75rem;
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.status-completed { color: var(--binance-green); }
+.status-pending { color: var(--binance-yellow); }
+.status-failed { color: var(--binance-red); }
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-close {
+    background: var(--binance-red);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: #b82a41;
+    transform: scale(1.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--binance-dark);
+    border: 1px solid var(--binance-border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.form-hint {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--binance-border);
+}
+
+.btn-cancel:hover {
+    background: var(--binance-hover);
+    border-color: var(--binance-yellow);
+    color: var(--text-primary);
+}
+
+.btn-submit {
+    background: var(--binance-green);
+    color: white;
+}
+
+.btn-submit:hover {
+    background: #02b574;
+    transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wallet-container {
+        margin: 70px auto 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .wallet-title {
+        font-size: 2rem;
+    }
+    
+    .balance-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-methods-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .transactions-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .transaction-item {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .transaction-amount {
+        text-align: left;
+        width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .wallet-header {
+        padding: 1.5rem 0;
+    }
+    
+    .balance-overview,
+    .quick-actions,
+    .recent-transactions {
+        padding: 1.5rem;
+    }
+    
+    .modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+</style>
+
+<div class="wallet-container">
+    <!-- Header Section -->
+    <div class="wallet-header">
+        <h1 class="wallet-title">Your Wallet</h1>
+        <p class="wallet-subtitle">Manage your funds and transactions</p>
+        <div class="exchange-rate">
+            Exchange Rate: 1 USD = KES {{ exchange_rate }}
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Balance Overview -->
+    <div class="balance-overview">
+        <h2 class="section-title">Balance Overview</h2>
+        
+        <div class="balance-grid">
+            <div class="balance-card usd">
+                <div class="balance-label">Available Balance (USD)</div>
+                <div class="balance-value">${{ user_wallet.balance|floatformat:2 }}</div>
+            </div>
+            
+            <div class="balance-card kes">
+                <div class="balance-label">Available Balance (KES)</div>
+                <div class="balance-value">KES {{ balance_kes|floatformat:0 }}</div>
+            </div>
+            
+            <div class="balance-card transactions">
+                <div class="balance-label">Total Transactions</div>
+                <div class="balance-value">{{ transactions|length }}</div>
+            </div>
+        </div>
+
+        <!-- Payment Methods Status -->
+        <div class="payment-methods">
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
+                Payment Methods Status
+            </h3>
+            <div class="payment-methods-grid">
+                <div class="payment-method">
+                    <div class="payment-status {% if user_wallet.mpesa_number %}status-active{% else %}status-inactive{% endif %}">
+                        {% if user_wallet.mpesa_number %}✓{% else %}✗{% endif %}
+                    </div>
+                    <div class="payment-info">
+                        M-Pesa: {% if user_wallet.mpesa_number %}{{ user_wallet.mpesa_number }}{% else %}Not set{% endif %}
+                    </div>
+                </div>
+                <div class="payment-method">
+                    <div class="payment-status {% if user_wallet.paypal_email %}status-active{% else %}status-inactive{% endif %}">
+                        {% if user_wallet.paypal_email %}✓{% else %}✗{% endif %}
+                    </div>
+                    <div class="payment-info">
+                        PayPal: {% if user_wallet.paypal_email %}{{ user_wallet.paypal_email }}{% else %}Not set{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if not user_wallet.mpesa_number or not user_wallet.paypal_email %}
+            <div class="setup-payment-btn">
+                <a href="{% url 'payment_methods' %}" class="action-btn btn-payment-methods">
+                    <i class="fas fa-cog"></i>
+                    Setup Payment Methods
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
+        
+        <div class="actions-grid">
+            <button onclick="showMpesaDepositModal()" class="action-btn btn-deposit">
+                <i class="fas fa-arrow-down"></i>
+                Deposit via M-Pesa
+            </button>
+            
+            <button onclick="showMpesaWithdrawModal()" class="action-btn btn-withdraw">
+                <i class="fas fa-arrow-up"></i>
+                Withdraw via M-Pesa
+            </button>
+            
+            <a href="{% url 'payment_methods' %}" class="action-btn btn-payment-methods">
+                <i class="fas fa-wallet"></i>
+                Payment Methods
+            </a>
+            
+            <a href="{% url 'transaction_history' %}" class="action-btn btn-history">
+                <i class="fas fa-history"></i>
+                View History
+            </a>
+        </div>
+    </div>
+
+    <!-- M-Pesa Deposit Modal -->
+    <div id="mpesaDepositModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Deposit via M-Pesa</h3>
+                <button onclick="closeMpesaDepositModal()" class="modal-close">
+                    ×
+                </button>
+            </div>
+            
+            <form id="mpesaDepositForm" method="POST" action="{% url 'initiate_mpesa_deposit' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Amount (KES)</label>
+                    <input type="number" name="amount" min="1" step="1" required 
+                           placeholder="Enter amount in Kenyan Shillings"
+                           class="form-input">
+                    <div class="form-hint">
+                        Equivalent to $<span id="depositUsdAmount">0.00</span> USD
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Number</label>
+                    <input type="tel" name="phone_number" value="{{ user_wallet.mpesa_number }}" required 
+                           placeholder="e.g., 0712345678"
+                           class="form-input">
+                    <div class="form-hint">
+                        Format: 07XXXXXXXX or 2547XXXXXXXX
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeMpesaDepositModal()" class="btn btn-cancel">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        Initiate Deposit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- M-Pesa Withdrawal Modal -->
+    <div id="mpesaWithdrawModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Withdraw via M-Pesa</h3>
+                <button onclick="closeMpesaWithdrawModal()" class="modal-close">
+                    ×
+                </button>
+            </div>
+            
+            <form id="mpesaWithdrawForm" method="POST" action="{% url 'initiate_mpesa_withdrawal' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Amount (KES)</label>
+                    <input type="number" name="amount" min="1" step="1" required 
+                           placeholder="Enter amount in Kenyan Shillings"
+                           max="{{ balance_kes|floatformat:0 }}"
+                           class="form-input">
+                    <div class="form-hint">
+                        Equivalent to $<span id="withdrawUsdAmount">0.00</span> USD • Max: KES {{ balance_kes|floatformat:0 }}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Number</label>
+                    <input type="tel" name="phone_number" value="{{ user_wallet.mpesa_number }}" required 
+                           placeholder="e.g., 0712345678"
+                           class="form-input">
+                    <div class="form-hint">
+                        Format: 07XXXXXXXX or 2547XXXXXXXX
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeMpesaWithdrawModal()" class="btn btn-cancel">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        Initiate Withdrawal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="recent-transactions">
+        <div class="transactions-header">
+            <h2 class="section-title" style="margin: 0;">Recent Transactions</h2>
+            <a href="{% url 'transaction_history' %}" class="view-all-btn">
+                View All
+            </a>
+        </div>
+        
+        {% if transactions %}
+        <div class="transactions-list">
+            {% for transaction in transactions %}
+            <div class="transaction-item">
+                <div class="transaction-info">
+                    <div class="transaction-icon {{ transaction.transaction_type }}">
+                        {% if transaction.transaction_type == 'deposit' %}⬇️{% else %}⬆️{% endif %}
+                    </div>
+                    <div class="transaction-details">
+                        <h4>{{ transaction.description }}</h4>
+                        <div class="transaction-meta">
+                            {{ transaction.created_at|date:"M j, Y g:i A" }} • {{ transaction.payment_method|title }}
+                        </div>
+                    </div>
+                </div>
+                <div class="transaction-amount">
+                    <div class="amount {{ transaction.transaction_type }}">
+                        {% if transaction.transaction_type == 'deposit' %}+{% else %}-{% endif %}${{ transaction.amount|floatformat:2 }}
+                    </div>
+                    <div class="amount-kes">
+                        KES <span class="transaction-kes" data-amount="{{ transaction.amount }}">0</span>
+                    </div>
+                    <div class="transaction-status status-{{ transaction.status }}">
+                        {{ transaction.status }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">💳</div>
+            <h3>No transactions yet</h3>
+            <p>Make your first deposit to get started!</p>
+            <button onclick="showMpesaDepositModal()" class="action-btn btn-deposit">
+                <i class="fas fa-arrow-down"></i>
+                Make First Deposit
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Modal functions
+function showMpesaDepositModal() {
+    document.getElementById('mpesaDepositModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    updateDepositUsdAmount();
+}
+
+function closeMpesaDepositModal() {
+    document.getElementById('mpesaDepositModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function showMpesaWithdrawModal() {
+    document.getElementById('mpesaWithdrawModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    updateWithdrawUsdAmount();
+}
+
+function closeMpesaWithdrawModal() {
+    document.getElementById('mpesaWithdrawModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Currency conversion functions
+function updateDepositUsdAmount() {
+    const kesInput = document.querySelector('#mpesaDepositForm input[name="amount"]');
+    const usdDisplay = document.getElementById('depositUsdAmount');
+    
+    kesInput.addEventListener('input', function() {
+        const kesAmount = parseFloat(this.value) || 0;
+        const usdAmount = kesAmount / {{ exchange_rate }};
+        usdDisplay.textContent = usdAmount.toFixed(2);
+    });
+}
+
+function updateWithdrawUsdAmount() {
+    const kesInput = document.querySelector('#mpesaWithdrawForm input[name="amount"]');
+    const usdDisplay = document.getElementById('withdrawUsdAmount');
+    
+    kesInput.addEventListener('input', function() {
+        const kesAmount = parseFloat(this.value) || 0;
+        const usdAmount = kesAmount / {{ exchange_rate }};
+        usdDisplay.textContent = usdAmount.toFixed(2);
+    });
+}
+
+// Calculate KES amounts for transactions
+function calculateTransactionKES() {
+    const exchangeRate = {{ exchange_rate }};
+    const kesElements = document.querySelectorAll('.transaction-kes');
+    
+    kesElements.forEach(element => {
+        const usdAmount = parseFloat(element.getAttribute('data-amount')) || 0;
+        const kesAmount = usdAmount * exchangeRate;
+        element.textContent = Math.round(kesAmount);
+    });
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const depositModal = document.getElementById('mpesaDepositModal');
+    const withdrawModal = document.getElementById('mpesaWithdrawModal');
+    
+    if (event.target === depositModal) {
+        closeMpesaDepositModal();
+    }
+    if (event.target === withdrawModal) {
+        closeMpesaWithdrawModal();
+    }
+}
+
+// Form submission handling
+document.getElementById('mpesaDepositForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const amountInput = this.querySelector('input[name="amount"]');
+    const phoneInput = this.querySelector('input[name="phone_number"]');
+    
+    // Validate amount
+    if (parseFloat(amountInput.value) < 1) {
+        alert('Please enter an amount greater than 0 KES');
+        return;
+    }
+    
+    // Validate phone number
+    if (!phoneInput.value.trim()) {
+        alert('Please enter your M-Pesa number');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    submitBtn.disabled = true;
+    
+    // Submit form
+    this.submit();
+});
+
+document.getElementById('mpesaWithdrawForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const amountInput = this.querySelector('input[name="amount"]');
+    const phoneInput = this.querySelector('input[name="phone_number"]');
+    
+    // Validate amount
+    const amount = parseFloat(amountInput.value);
+    if (amount < 1) {
+        alert('Please enter an amount greater than 0 KES');
+        return;
+    }
+    
+    // Check if amount exceeds balance
+    const maxAmount = parseFloat('{{ balance_kes }}');
+    if (amount > maxAmount) {
+        alert('Withdrawal amount exceeds your available balance');
+        return;
+    }
+    
+    // Validate phone number
+    if (!phoneInput.value.trim()) {
+        alert('Please enter your M-Pesa number');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    submitBtn.disabled = true;
+    
+    // Submit form
+    this.submit();
+});
+
+// Initialize currency conversion on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateDepositUsdAmount();
+    updateWithdrawUsdAmount();
+    calculateTransactionKES();
+});
+</script>
+{% endblock %}

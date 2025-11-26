@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign In - CryptoConsult{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Binance Login Styles */
+.binance-container {
+    max-width: 400px;
+    margin: 100px auto 2rem;
+    padding: 0 1rem;
+}
+
+.binance-card {
+    background: var(--binance-dark-gray);
+    border: 1px solid var(--binance-border);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+}
+
+.binance-card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.binance-card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.binance-card-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.binance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.binance-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.binance-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.binance-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--binance-black);
+    border: 1px solid var(--binance-border);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.binance-input:focus {
+    outline: none;
+    border-color: var(--binance-yellow);
+    box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.1);
+}
+
+.binance-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.binance-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.binance-checkbox input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--binance-border);
+    border-radius: 2px;
+    background: var(--binance-black);
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.binance-checkbox input[type="checkbox"]:checked {
+    background: var(--binance-yellow);
+    border-color: var(--binance-yellow);
+}
+
+.binance-checkbox input[type="checkbox"]:checked::before {
+    content: "✓";
+    position: absolute;
+    color: #000000;
+    font-size: 0.75rem;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.binance-checkbox-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.binance-btn {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--binance-yellow);
+    color: #000000;
+    border: 1px solid var(--binance-yellow);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.binance-btn:hover {
+    background: #e0ac0a;
+    border-color: #e0ac0a;
+    transform: translateY(-1px);
+}
+
+.binance-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.binance-alert {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.binance-alert-error {
+    background: rgba(207, 48, 74, 0.1);
+    border: 1px solid rgba(207, 48, 74, 0.3);
+    color: var(--error-color);
+}
+
+.binance-alert-info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--info-color);
+}
+
+.binance-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.binance-link {
+    color: var(--binance-yellow);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: var(--transition);
+}
+
+.binance-link:hover {
+    text-decoration: underline;
+}
+
+.binance-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.binance-text a {
+    color: var(--binance-yellow);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.binance-text a:hover {
+    text-decoration: underline;
+}
+
+/* Error states */
+.binance-input-error {
+    border-color: var(--error-color) !important;
+}
+
+.binance-error-text {
+    color: var(--error-color);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* Loading state */
+.binance-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: binance-spin 1s linear infinite;
+}
+
+@keyframes binance-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .binance-container {
+        margin: 80px auto 1rem;
+        padding: 0 0.75rem;
+    }
+    
+    .binance-card {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="binance-container">
+    <div class="binance-card">
+        <!-- Header -->
+        <div class="binance-card-header">
+            <h1 class="binance-card-title">Sign In</h1>
+            <p class="binance-card-subtitle">Access your CryptoConsult account</p>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="{% url 'account_login' %}" class="binance-form">
+            {% csrf_token %}
+            
+            <!-- Display All Form Errors -->
+            {% if form.errors %}
+            <div class="binance-alert binance-alert-error">
+                <strong style="display: block; margin-bottom: 0.5rem;">Please correct the following errors:</strong>
+                <div style="font-size: 0.75rem;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <div><strong>{{ field.label }}:</strong> {{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Login Field -->
+            <div class="binance-form-group">
+                <label for="id_login" class="binance-label">
+                    Email or Username
+                </label>
+                <input type="text" 
+                       name="login" 
+                       id="id_login" 
+                       placeholder="Enter your email or username"
+                       value="{{ form.login.value|default:'' }}"
+                       class="binance-input {% if form.login.errors %}binance-input-error{% endif %}"
+                       required
+                       autocomplete="email">
+                {% if form.login.errors %}
+                <div class="binance-error-text">
+                    {% for error in form.login.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="binance-form-group">
+                <label for="id_password" class="binance-label">
+                    Password
+                </label>
+                <input type="password" 
+                       name="password" 
+                       id="id_password" 
+                       placeholder="Enter your password"
+                       class="binance-input {% if form.password.errors %}binance-input-error{% endif %}"
+                       required
+                       autocomplete="current-password">
+                {% if form.password.errors %}
+                <div class="binance-error-text">
+                    {% for error in form.password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Remember Me -->
+            <label class="binance-checkbox">
+                <input type="checkbox" 
+                       name="remember" 
+                       id="id_remember"
+                       {% if form.remember.value %}checked{% endif %}>
+                <span class="binance-checkbox-label">Remember me</span>
+            </label>
+
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <button type="submit" class="binance-btn" id="submitBtn">
+                <span id="submitText">Sign In</span>
+                <div id="loadingSpinner" class="binance-spinner" style="display: none;"></div>
+            </button>
+        </form>
+
+        <!-- Links -->
+        <div class="binance-links">
+            <a href="{% url 'account_reset_password' %}" class="binance-link">
+                Forgot your password?
+            </a>
+            <p class="binance-text">
+                Don't have an account? 
+                <a href="{% url 'account_signup' %}">Sign up here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Debug Section (Remove in production) -->
+    {% if form.errors %}
+    <div class="binance-alert binance-alert-info" style="margin-top: 1.5rem;">
+        <h4 style="color: var(--info-color); margin-bottom: 0.5rem; font-size: 0.875rem;">Debug Info:</h4>
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+            <p style="margin: 0.25rem 0;">Form has errors: {{ form.errors }}</p>
+            <p style="margin: 0.25rem 0;">Non-field errors: {{ form.non_field_errors }}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.querySelector('.binance-form');
+    const loginInput = document.getElementById('id_login');
+    const passwordInput = document.getElementById('id_password');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+
+    // Real-time validation
+    function validateField(field) {
+        if (field.value.trim() === '') {
+            field.classList.add('binance-input-error');
+        } else {
+            field.classList.remove('binance-input-error');
+        }
+    }
+
+    // Validate on input
+    if (loginInput) {
+        loginInput.addEventListener('input', function() {
+            validateField(this);
+        });
+    }
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            validateField(this);
+        });
+    }
+
+    // Form submission handling
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validate fields
+            if (!loginInput.value.trim()) {
+                loginInput.classList.add('binance-input-error');
+                isValid = false;
+            }
+            
+            if (!passwordInput.value.trim()) {
+                passwordInput.classList.add('binance-input-error');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Show loading state
+            submitText.textContent = 'Signing In...';
+            loadingSpinner.style.display = 'block';
+            submitBtn.disabled = true;
+        });
+    }
+
+    // Clear error styling when user starts typing
+    const inputs = document.querySelectorAll('.binance-input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.classList.remove('binance-input-error');
+            }
+        });
+    });
+
+    // Auto-focus on login input
+    if (loginInput) {
+        setTimeout(() => {
+            loginInput.focus();
+        }, 100);
+    }
+
+    // Handle page load with existing errors
+    if (loginInput && loginInput.value.trim() !== '') {
+        loginInput.classList.remove('binance-input-error');
+    }
+    if (passwordInput && passwordInput.value.trim() !== '') {
+        passwordInput.classList.remove('binance-input-error');
+    }
+});
+</script>
+{% endblock %}

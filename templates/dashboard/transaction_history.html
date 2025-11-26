@@ -1,0 +1,576 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Transaction History - CryptoConsult{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --binance-yellow: #F0B90B;
+    --binance-green: #03A66D;
+    --binance-red: #CF304A;
+    --binance-blue: #017AFF;
+    --binance-dark: #0c0e14;
+    --binance-card: #161a25;
+    --binance-border: #2b3139;
+    --binance-hover: #1e2329;
+    --text-primary: #EAECEF;
+    --text-secondary: #848e9c;
+    --text-muted: #6c757d;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Transaction History Container */
+.transaction-container {
+    max-width: 1200px;
+    margin: 80px auto 2rem;
+    padding: 0 1rem;
+    min-height: calc(100vh - 80px);
+}
+
+/* Header Section */
+.transaction-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--binance-border);
+}
+
+.transaction-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--binance-yellow);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.transaction-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Summary Cards */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--binance-yellow);
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+}
+
+.summary-card.balance .summary-value { color: var(--binance-blue); }
+.summary-card.total .summary-value { color: var(--binance-green); }
+.summary-card.completed .summary-value { color: #8b5cf6; }
+.summary-card.pending .summary-value { color: var(--binance-yellow); }
+
+/* Transactions Section */
+.transactions-section {
+    background: var(--binance-card);
+    border: 1px solid var(--binance-border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--binance-border);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.back-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--binance-blue);
+    border: 1px solid var(--binance-blue);
+    border-radius: 6px;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.back-btn:hover {
+    background: var(--binance-blue);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* Transactions Table */
+.transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transactions-table thead {
+    border-bottom: 1px solid var(--binance-border);
+}
+
+.transactions-table th {
+    padding: 1rem;
+    text-align: left;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.transactions-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+}
+
+.transactions-table tbody tr:hover {
+    background: var(--binance-hover);
+}
+
+.transactions-table td {
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.transaction-date {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.transaction-time {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.transaction-description {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.transaction-type {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+}
+
+.transaction-method {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: capitalize;
+}
+
+.transaction-amount {
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.amount-deposit { color: var(--binance-green); }
+.amount-withdraw { color: var(--binance-red); }
+
+.transaction-status {
+    text-align: center;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    display: inline-block;
+}
+
+.status-completed {
+    background: rgba(3, 166, 109, 0.2);
+    color: var(--binance-green);
+    border: 1px solid rgba(3, 166, 109, 0.3);
+}
+
+.status-pending {
+    background: rgba(240, 185, 11, 0.2);
+    color: var(--binance-yellow);
+    border: 1px solid rgba(240, 185, 11, 0.3);
+}
+
+.status-failed {
+    background: rgba(207, 48, 74, 0.2);
+    color: var(--binance-red);
+    border: 1px solid rgba(207, 48, 74, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    margin-bottom: 1.5rem;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.btn-deposit {
+    background: var(--binance-green);
+    color: white;
+    border-color: var(--binance-green);
+}
+
+.btn-deposit:hover {
+    background: #02b574;
+    border-color: #02b574;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: white;
+}
+
+.btn-wallet {
+    background: transparent;
+    color: var(--binance-blue);
+    border-color: var(--binance-blue);
+}
+
+.btn-wallet:hover {
+    background: var(--binance-blue);
+    color: white;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .transaction-container {
+        margin: 70px auto 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .transaction-title {
+        font-size: 2rem;
+    }
+    
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .transactions-section {
+        padding: 1.5rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .transactions-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .transactions-table thead {
+        display: none;
+    }
+    
+    .transactions-table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        background: var(--binance-dark);
+        border: 1px solid var(--binance-border);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    .transactions-table td {
+        display: block;
+        text-align: right !important;
+        padding: 0.5rem 0 !important;
+        border: none !important;
+    }
+    
+    .transactions-table td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    
+    .transaction-amount {
+        text-align: right !important;
+    }
+    
+    .transaction-status {
+        text-align: right !important;
+    }
+    
+    .empty-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .transaction-header {
+        padding: 1.5rem 0;
+    }
+}
+</style>
+
+<div class="transaction-container">
+    <!-- Header Section -->
+    <div class="transaction-header">
+        <h1 class="transaction-title">Transaction History</h1>
+        <p class="transaction-subtitle">Complete record of all your transactions</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <div class="summary-card balance">
+            <div class="summary-label">Total Balance</div>
+            <div class="summary-value">${{ user_wallet.balance|default:"0.00" }}</div>
+        </div>
+        
+        <div class="summary-card total">
+            <div class="summary-label">Total Transactions</div>
+            <div class="summary-value">{{ transactions|length }}</div>
+        </div>
+        
+        <div class="summary-card completed">
+            <div class="summary-label">Completed</div>
+            <div class="summary-value">{{ completed_count }}</div>
+        </div>
+        
+        <div class="summary-card pending">
+            <div class="summary-label">Pending</div>
+            <div class="summary-value">{{ pending_count }}</div>
+        </div>
+    </div>
+
+    <!-- Transactions Section -->
+    <div class="transactions-section">
+        <div class="section-header">
+            <h2 class="section-title">All Transactions</h2>
+            <a href="{% url 'wallet' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Wallet
+            </a>
+        </div>
+        
+        {% if transactions %}
+        <div style="overflow-x: auto;">
+            <table class="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Description</th>
+                        <th>Method</th>
+                        <th style="text-align: right;">Amount</th>
+                        <th style="text-align: center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td data-label="Date & Time">
+                            <div class="transaction-date">
+                                {{ transaction.created_at|date:"M j, Y" }}
+                            </div>
+                            <div class="transaction-time">
+                                {{ transaction.created_at|date:"g:i A" }}
+                            </div>
+                        </td>
+                        <td data-label="Description">
+                            <div class="transaction-description">
+                                {{ transaction.description }}
+                            </div>
+                            <div class="transaction-type">
+                                {{ transaction.transaction_type }}
+                            </div>
+                        </td>
+                        <td data-label="Method">
+                            <div class="transaction-method">
+                                <i class="fas fa-{% if transaction.payment_method == 'mpesa' %}mobile-alt{% else %}credit-card{% endif %}"></i>
+                                {{ transaction.payment_method|title }}
+                            </div>
+                        </td>
+                        <td data-label="Amount" class="transaction-amount {% if transaction.transaction_type == 'deposit' %}amount-deposit{% else %}amount-withdraw{% endif %}">
+                            {% if transaction.transaction_type == 'deposit' %}+{% else %}-{% endif %}${{ transaction.amount }}
+                        </td>
+                        <td data-label="Status" class="transaction-status">
+                            <span class="status-badge status-{{ transaction.status }}">
+                                {{ transaction.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>No transactions yet</h3>
+            <p>Your transaction history will appear here once you start using your wallet</p>
+            <div class="empty-actions">
+                <a href="{% url 'deposit_funds' %}" class="action-btn btn-deposit">
+                    <i class="fas fa-arrow-down"></i>
+                    Make First Deposit
+                </a>
+                <a href="{% url 'wallet' %}" class="action-btn btn-wallet">
+                    <i class="fas fa-wallet"></i>
+                    Back to Wallet
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Add data labels for mobile responsive table
+document.addEventListener('DOMContentLoaded', function() {
+    const tableCells = document.querySelectorAll('.transactions-table td');
+    const tableHeaders = document.querySelectorAll('.transactions-table th');
+    
+    tableCells.forEach((cell, index) => {
+        const headerIndex = index % tableHeaders.length;
+        if (tableHeaders[headerIndex]) {
+            cell.setAttribute('data-label', tableHeaders[headerIndex].textContent);
+        }
+    });
+});
+
+// Add hover effects and animations
+document.addEventListener('DOMContentLoaded', function() {
+    const tableRows = document.querySelectorAll('.transactions-table tbody tr');
+    
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(4px)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+    
+    // Add loading animation for summary cards
+    const summaryCards = document.querySelectorAll('.summary-card');
+    summaryCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.style.animation = 'fadeInUp 0.6s ease-out';
+    });
+});
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .summary-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .transactions-table tbody tr {
+        animation: fadeInUp 0.4s ease-out;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

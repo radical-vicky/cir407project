@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign Out - CryptoConsult{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Binance Sign Out Styles */
+.binance-container {
+    max-width: 400px;
+    margin: 100px auto 2rem;
+    padding: 0 1rem;
+}
+
+.binance-card {
+    background: var(--binance-dark-gray);
+    border: 1px solid var(--binance-border);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+}
+
+.binance-logout-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.binance-logout-icon i {
+    color: var(--info-color);
+    font-size: 1.5rem;
+}
+
+.binance-card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.binance-card-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+.binance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.binance-btn-group {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.binance-btn {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    text-align: center;
+    transition: var(--transition);
+    border: 1px solid;
+    cursor: pointer;
+}
+
+.binance-btn-primary {
+    background: var(--binance-yellow);
+    color: #000000;
+    border-color: var(--binance-yellow);
+}
+
+.binance-btn-primary:hover {
+    background: #e0ac0a;
+    border-color: #e0ac0a;
+    transform: translateY(-1px);
+}
+
+.binance-btn-outline {
+    background: transparent;
+    color: var(--binance-yellow);
+    border-color: var(--binance-yellow);
+}
+
+.binance-btn-outline:hover {
+    background: var(--binance-yellow);
+    color: #000000;
+    transform: translateY(-1px);
+}
+
+.binance-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--binance-border);
+}
+
+.binance-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Logout animation */
+@keyframes logoutPulse {
+    0%, 100% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.05); 
+    }
+}
+
+.binance-logout-icon {
+    animation: logoutPulse 2s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .binance-container {
+        margin: 80px auto 1rem;
+        padding: 0 0.75rem;
+    }
+    
+    .binance-card {
+        padding: 1.5rem;
+    }
+    
+    .binance-btn-group {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="binance-container">
+    <div class="binance-card">
+        <!-- Logout Icon -->
+        <div class="binance-logout-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+
+        <!-- Header -->
+        <h1 class="binance-card-title">Sign Out</h1>
+        <p class="binance-card-subtitle">Are you sure you want to sign out?</p>
+
+        <!-- Logout Form -->
+        <form method="POST" action="{% url 'account_logout' %}" class="binance-form">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %}
+            
+            <div class="binance-btn-group">
+                <a href="{% url 'dashboard' %}" class="binance-btn binance-btn-outline">
+                    Cancel
+                </a>
+                <button type="submit" class="binance-btn binance-btn-primary">
+                    Sign Out
+                </button>
+            </div>
+        </form>
+
+        <!-- Footer -->
+        <div class="binance-footer">
+            <p class="binance-text">
+                You can always sign back in anytime.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const signOutBtn = document.querySelector('button[type="submit"]');
+    
+    // Add confirmation for sign out
+    if (signOutBtn) {
+        signOutBtn.addEventListener('click', function(e) {
+            const confirmed = confirm('Are you sure you want to sign out?');
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Add entrance animation
+    const card = document.querySelector('.binance-card');
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+        card.style.transition = 'all 0.5s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, 100);
+});
+</script>
+{% endblock %}
